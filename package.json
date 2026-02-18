@@ -1,0 +1,32 @@
+{
+  "name": "demo-sdd-qloapps",
+  "version": "1.0.0",
+  "description": "Automation testing for QloApps",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
+    "@playwright/cli": "^0.1.1",
+    "@playwright/test": "1.58.2",
+    "@types/node": "^20.19.27",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
+    "dotenv": "^17.2.3",
+    "dotenv-expand": "^12.0.3",
+    "eslint": "^9.39.2",
+    "eslint-plugin-playwright": "^2.4.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.51.0"
+  }
+}
