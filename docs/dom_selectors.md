@@ -35,3 +35,28 @@ This document contains key DOM selectors identified during the exploration of th
 | **Order Row (Latest)** | `tr.first_item` | The first row in the "Order History" table. |
 | **Order Reference Link** | `a.color-myaccount` | The clickable order reference code in the history table. |
 | **Order Status** | `td.history_state span` | Status badge (e.g., "On Backorder"). |
+
+## 6. Admin Panel: Orders
+| Element | Selector | Description |
+| :--- | :--- | :--- |
+| **Orders Table** | `table.order` | The main table listing all orders. |
+| **First Order Row** | `table.order tbody tr:first-child` | The most recent order in the list. |
+| **Filter Button** | `button.btn-block` (contains 'Filters') | Button to toggle the filter inputs row. |
+| **Status Filter** | `select[name="orderFilter_os!id_order_state"]` | Dropdown to filter orders by status (visible after clicking Filters). |
+
+## 7. Admin Panel: Order Details
+| Element | Selector | Description |
+| :--- | :--- | :--- |
+| **Status Dropdown** | `select#id_order_state` | Dropdown to select a new order status. |
+| **Update Status Btn** | `button[name="submitState"]` | Button to save the new status. |
+| **Message Textarea** | `textarea#txt_msg` | Text area for sending a message to the customer. |
+| **Display to Customer** | `input#visibility` | Checkbox to make message visible to customer. |
+| **Send Message Btn** | `button#submitMessage` | Button to send the message. |
+
+## 8. Admin Panel: Customers
+| Element | Selector | Description |
+| :--- | :--- | :--- |
+| **Customers Table** | `table.customer` | The main table listing all registered customers. |
+| **Email Filter** | `input[name="customerFilter_email"]` | Input to filter customers by email. |
+| **Filter Button** | `button[name="submitFiltercustomer"]` | Button to apply the filters (usually 'Search'). |
+
