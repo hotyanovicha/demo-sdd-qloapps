@@ -47,7 +47,8 @@ jobs:
         with:
           version: 9
 
-      - name: Get pnpm store directory
+      # Get the pnpm store path to cache it effectively
+      - name: Get pnpm store path
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
@@ -80,10 +81,10 @@ jobs:
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             # Set project flag
-            if [ "${{ inputs.project }}" = "all" ]; then
-              TEST_ARGS="--project=chromium"
-            else
+            if [ "${{ inputs.project }}" != "all" ]; then
               TEST_ARGS="--project=${{ inputs.project }}"
+            else
+               TEST_ARGS=""
             fi
 
             # Set grep flag based on priority
@@ -100,7 +101,7 @@ jobs:
             esac
           else
             # Default to all projects for push events
-            TEST_ARGS="--project=chromium"
+            TEST_ARGS=""
           fi
 
           pnpm exec playwright test $TEST_ARGS
