@@ -38,10 +38,7 @@ jobs:
   run-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -137,12 +134,20 @@ jobs:
         with:
           path: playwright-report
 
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
+
+  deploy-report:
+    needs: run-tests
+    if: always()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         if: always()
         continue-on-error: true
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Fail if tests failed
-        if: steps.tests.outcome == 'failure'
-        run: exit 1
