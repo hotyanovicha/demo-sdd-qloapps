@@ -6,3 +6,6 @@ blob-report/
 playwright/.cache/
 .env
 .DS_Store
+log/
+local.log
+
