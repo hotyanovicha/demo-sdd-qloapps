@@ -1,0 +1,40 @@
+services:
+  app:
+    build: .
+    container_name: qloapps_build_app
+    ports:
+      - "8080:80"
+    environment:
+      - DB_SERVER=db
+      - DB_USER=qloapps
+      - DB_PASSWD=qloapps
+      - DB_NAME=qloapps
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - qloapps-build-net
+
+  db:
+    image: mysql:8.0
+    container_name: qloapps_build_db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=qloapps
+      - MYSQL_USER=qloapps
+      - MYSQL_PASSWORD=qloapps
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - qloapps-build-net
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "qloapps", "-pqloapps"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+networks:
+  qloapps-build-net:
+    driver: bridge

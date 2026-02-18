@@ -1,0 +1,138 @@
+name: pw
+run-name: >
+  ${{ github.workflow }} :: run #${{ github.run_number }} :: ${{ inputs.project || 'all' }} :: ${{ inputs.priority || 'all' }}
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Project'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - chromium
+      priority:
+        description: 'Priority'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - P1
+          - P1-P2
+          - P1-P3
+          - all
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  run-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Start Application
+        run: |
+          docker compose up -d --build
+          echo "Waiting for application to be ready..."
+          timeout 180s bash -c 'until curl -sf http://localhost:8080 > /dev/null; do sleep 5; done'
+          echo "Application is ready!"
+
+      - name: Run Playwright tests
+        id: tests
+        run: |
+          TEST_ARGS=""
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Set project flag
+            if [ "${{ inputs.project }}" = "all" ]; then
+              TEST_ARGS="--project=chromium"
+            else
+              TEST_ARGS="--project=${{ inputs.project }}"
+            fi
+
+            # Set grep flag based on priority
+            case "${{ inputs.priority }}" in
+              "P1")
+                TEST_ARGS="$TEST_ARGS --grep @P1"
+                ;;
+              "P1-P2")
+                TEST_ARGS="$TEST_ARGS --grep @P1|@P2"
+                ;;
+              "P1-P3")
+                TEST_ARGS="$TEST_ARGS --grep @P1|@P2|@P3"
+                ;;
+            esac
+          else
+            # Default to all projects for push events
+            TEST_ARGS="--project=chromium"
+          fi
+
+          pnpm exec playwright test $TEST_ARGS
+        env:
+          CI: true
+          BASE_URL: http://localhost:8080
+        continue-on-error: true
+
+      - name: Dump Docker logs
+        if: failure()
+        run: docker compose logs --tail=100
+
+      - name: Setup Pages
+        if: always()
+        uses: actions/configure-pages@v4
+
+      - name: Upload HTML report as artifact
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playwright-report
+
+      - name: Deploy to GitHub Pages
+        if: always()
+        continue-on-error: true
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
