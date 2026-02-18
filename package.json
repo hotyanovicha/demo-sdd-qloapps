@@ -10,7 +10,12 @@
     "test:ui": "playwright test --ui",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "npm update browserstack-node-sdk",
+    "test-browserstack": "browserstack-node-sdk playwright test",
+    "test:headed-browserstack": "browserstack-node-sdk playwright test --headed",
+    "test:debug-browserstack": "browserstack-node-sdk playwright test --debug",
+    "test:ui-browserstack": "browserstack-node-sdk playwright test --ui"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
@@ -19,6 +24,7 @@
     "@types/node": "^20.19.27",
     "@typescript-eslint/eslint-plugin": "^8.51.0",
     "@typescript-eslint/parser": "^8.51.0",
+    "browserstack-node-sdk": "^1.49.10",
     "dotenv": "^17.2.3",
     "dotenv-expand": "^12.0.3",
     "eslint": "^9.39.2",

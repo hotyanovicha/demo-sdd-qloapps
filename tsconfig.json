@@ -12,7 +12,7 @@
     "paths": {
       "@src/*": ["src/*"],
       "@pages/*": ["src/ui/pages/*"],
-      "@fixtures/*": ["tests/fixtures/*"],
+      "@fixtures/*": ["src/ui/fixtures/*"],
       "@constants/*": ["src/ui/test-data/constants/*"],
       "@types-ui/*": ["src/ui/types/*"]
     }

@@ -1,6 +1,6 @@
 const BASE = process.env.BASE_URL ?? '';
 
 export const URLS = {
-  BASE,
-  LOGIN: `${BASE}/login`,
+  HOME: `${BASE}/en/`,
+  LOGIN: `${BASE}/en/login`,
 } as const;

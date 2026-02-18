@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx playwright-cli install:*)"
+      "Bash(npx playwright-cli install:*)",
+      "Bash(tree:*)",
+      "Bash(npx tsc:*)",
+      "Skill(review-pr)"
     ]
   }
 }
