@@ -11,7 +11,7 @@ resources:
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: 'ghcr-connection' # You might need to adjust this name
-  imageRepository: 'ahotyanovich/demo-sdd-qloapps' # Adjust based on your GHCR repository name
+  imageRepository: 'hotyanovicha/demo-sdd-qloapps' # Adjust based on your GHCR repository name
   containerRegistry: 'ghcr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
   tag: '$(Build.BuildId)'
@@ -48,11 +48,27 @@ stages:
         IMAGE_TAG=sha-$(SHORT_SHA)
         echo "Trying to pull image with tag: $IMAGE_TAG"
         
-        if docker pull ghcr.io/$(imageRepository):$IMAGE_TAG; then
-          echo "Successfully pulled image with tag $IMAGE_TAG"
-          echo "##vso[task.setvariable variable=IMAGE_TAG]$IMAGE_TAG"
-        else
-          echo "Failed to pull image with tag $IMAGE_TAG, falling back to latest"
+        # Add a small wait to allow GitHub Action push to stabilize if needed
+        # and use a retry loop for robustness
+        MAX_RETRIES=3
+        COUNT=0
+        SUCCESS=false
+        
+        while [ $COUNT -lt $MAX_RETRIES ]; do
+          if docker pull ghcr.io/$(imageRepository):$IMAGE_TAG; then
+            echo "Successfully pulled image with tag $IMAGE_TAG"
+            echo "##vso[task.setvariable variable=IMAGE_TAG]$IMAGE_TAG"
+            SUCCESS=true
+            break
+          else
+            echo "Attempt $((COUNT+1)) failed to pull image with tag $IMAGE_TAG. Waiting 10s..."
+            sleep 10
+            COUNT=$((COUNT+1))
+          fi
+        done
+        
+        if [ "$SUCCESS" = false ]; then
+          echo "Failed to pull image with tag $IMAGE_TAG after $MAX_RETRIES attempts, falling back to latest"
           docker pull ghcr.io/$(imageRepository):latest
           echo "##vso[task.setvariable variable=IMAGE_TAG]latest"
         fi
@@ -62,11 +78,20 @@ stages:
         echo "Starting application with Docker Compose..."
         export APP_IMAGE=ghcr.io/$(imageRepository):$(IMAGE_TAG)
         echo "Using APP_IMAGE: $APP_IMAGE"
-        docker-compose up -d
+        docker compose up -d
         
         echo "Waiting for service to be healthy..."
-        sleep 30
-        docker-compose ps
+        # Wait up to 60 seconds for service to be healthy
+        for i in {1..12}; do
+          if docker compose ps | grep -q "(healthy)"; then
+            echo "Service is healthy!"
+            break
+          fi
+          echo "Waiting for health check... ($((i*5))s)"
+          sleep 5
+        done
+        
+        docker compose ps
       displayName: 'Start Application'
       env:
         APP_IMAGE: ghcr.io/$(imageRepository):$(IMAGE_TAG)
@@ -108,6 +133,6 @@ stages:
       displayName: 'Publish Playwright Report'
 
     - script: |
-        docker-compose down
+        docker compose down
       condition: always()
       displayName: 'Teardown Docker'
