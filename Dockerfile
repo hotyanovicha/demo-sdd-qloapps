@@ -29,6 +29,28 @@ RUN chown -R www-data:www-data /var/www/html \
     && find /var/www/html -type d -exec chmod 755 {} \; \
     && find /var/www/html -type f -exec chmod 644 {} \;
 
+# Fix img/.htaccess: replace blanket "Require all denied" (Apache 2.4) with
+# "Options -Indexes" so Apache can traverse img/p/N/ subdirectories for URL
+# rewriting while still preventing directory listing and PHP execution.
+RUN printf \
+    '# Apache 2.2\n'\
+    '<IfModule !mod_authz_core.c>\n'\
+    '    Order deny,allow\n'\
+    '    Deny from all\n'\
+    '    <Files ~ "(?i)^.*\\.(jpg|jpeg|gif|png|bmp|tiff|svg|pdf|mov|mpeg|mp4|avi|mpg|wma|flv|webm|ico|webp|avif)$">\n'\
+    '        Allow from all\n'\
+    '    </Files>\n'\
+    '</IfModule>\n'\
+    '\n'\
+    '# Apache 2.4\n'\
+    '<IfModule mod_authz_core.c>\n'\
+    '    Options -Indexes\n'\
+    '    <FilesMatch "(?i)\\.(php[0-9]?|phtml|pl|py|jsp|asp|cgi|sh)$">\n'\
+    '        Require all denied\n'\
+    '    </FilesMatch>\n'\
+    '</IfModule>\n' \
+    > /var/www/html/img/.htaccess
+
 # Use the default production configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
