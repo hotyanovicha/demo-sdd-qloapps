@@ -129,7 +129,7 @@ jobs:
         continue-on-error: true
 
       - name: Dump Docker logs
-        if: failure()
+        if: steps.tests.outcome == 'failure'
         run: docker compose logs --tail=100
 
       - name: Upload report artifact
