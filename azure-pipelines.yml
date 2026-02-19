@@ -102,8 +102,9 @@ stages:
       displayName: 'Install Node.js'
 
     - script: |
-        npm ci
-      displayName: 'Install dependencies'
+        npm install -g pnpm
+        pnpm install --frozen-lockfile
+      displayName: 'Install dependencies (pnpm)'
 
     - script: |
         npx playwright install --with-deps chromium
