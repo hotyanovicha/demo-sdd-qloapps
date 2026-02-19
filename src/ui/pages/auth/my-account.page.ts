@@ -2,8 +2,8 @@ import { expect, Page } from '@playwright/test';
 import { BasePage } from '../base.page';
 
 export class MyAccountPage extends BasePage {
-  protected readonly uniqueElement = this.page.getByRole('heading', { name: /my account/i });
-  private readonly successAlert = this.page.locator('.alert-success');
+  protected readonly uniqueElement = this.page.getByRole('heading', { name: /my account/i }).describe('My Account Heading');
+  private readonly successAlert = this.page.locator('.alert-success').describe('Success Alert');
 
   constructor(page: Page) {
     super(page);

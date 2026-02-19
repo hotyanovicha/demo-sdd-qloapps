@@ -25,13 +25,13 @@
 10. **Consumed by Specs** - Page Objects are used directly by Test Specs.
 11. **UPDATE page-object-map.md** - Immediately after creation
 12. **🔴 POPUPS get separate Page Objects** - Always create a dedicated `*PopupPage` class for popups/modals. Small popups can be integrated into parent Page Objects.
-13. **🔴 NEVER duplicate BasePage methods** - **NEVER override `verifyPageOpened()`**. Ensure the `formLocator` passed to `super()` is the correct unique page identifier, and use the inherited method. Don't create methods like `verifyPopupVisible()`.
-14. **🔴 UNIQUE formLocator REQUIRED** - The `formLocator` passed to `super()` **MUST be unique to that specific page type** and **MUST NOT appear on other pages**. Use MCP browser tools to verify:
+13. **🔴 NEVER duplicate BasePage methods** - **NEVER override `waitForLoad()`**. Ensure the `uniqueElement` abstraction correctly identifies the page, and use the inherited method. Don't create methods like `verifyPopupVisible()`.
+14. **🔴 UNIQUE element REQUIRED** - The `uniqueElement` property defined in the class **MUST be unique to that specific page type** and **MUST NOT appear on other pages**. Use MCP browser tools to verify:
     - Navigate to the target page and verify the locator exists (returns exactly 1 element)
     - Navigate to similar/related pages (e.g., Main Page vs Article Page) and verify the locator does NOT exist (returns 0 elements)
     - Prefer simple, semantic locators (e.g., `page.getByRole('link', { name: 'Edit' })`) over complex structural selectors
     - **Example:** Article pages use "Edit" link (unique), Main Page uses "View source" (different) - verify both pages to ensure uniqueness
-15. **🔴 Expect assertions in BasePage** - Any verification using Playwright expect matchers (like `toHaveTitle`, `toBeVisible`, `toHaveText`, etc.) must be added to `BasePage` as a generic method. Page Objects should call the BasePage method, not use `expect()` directly.
+15. **Expect assertions** - Direct Playwright `expect()` matchers (like `toHaveTitle`, `toBeVisible`) are allowed in Page Objects. General, shared assertion steps can be added to `BasePage` to avoid duplication.
 16. **JSDoc on complex methods** - Methods with non-obvious behavior should have JSDoc comments. Simple self-documenting methods (like `clickLogin()`) may omit JSDoc if the method name clearly conveys intent.
 17. **🔴 Page Object-specific constants** - Constants specific to a Page Object (like page titles, specific text values) must be stored as constants at the top of the Page Object file. Use UPPER_SNAKE_CASE naming.
 18. **🔴 Locator extraction process** - Follow [locators.md](locators.md) methodology for creating new locators. **MCP verification is MANDATORY** - Always verify uniqueness before implementation.
@@ -47,26 +47,28 @@
 **Rules:**
 - Always create a separate Page Object for popups/modals
 - Use `PopupPage` suffix in class name
-- **Use `formLocator` as the container** - Don't create separate container locators
+- **Use `uniqueElement` as the container** - Don't create separate container locators
 - Small popups: integrate into parent Page Object
 - Large/complex popups: warrant their own Page Object
 
 ```typescript
 export class ConfirmDialogPopupPage extends BasePage {
+    protected readonly uniqueElement: Locator;
     private readonly confirmButton: Locator;
     private readonly cancelButton: Locator;
 
     constructor(page: Page) {
-        // formLocator IS the popup container - no separate container needed
-        super(page, page.locator('.dialog-popup'), 'ConfirmDialogPopupPage');
+        super(page);
+        // uniqueElement IS the popup container - no separate container needed
+        this.uniqueElement = page.locator('.dialog-popup');
         this.confirmButton = page.locator('button:has-text("OK")').describe('OK button');
         this.cancelButton = page.locator('button:has-text("Cancel")').describe('Cancel button');
     }
 
-    // ✅ Use inherited verifyPageOpened() for visibility - DON'T create verifyPopupVisible()
+    // ✅ Use inherited waitForLoad() for visibility - DON'T create verifyPopupVisible()
 
     async verifyPopupContainsText(expectedText: string): Promise<void> {
-        await this.elementToContainText(this.formLocator, expectedText);
+        await expect(this.uniqueElement).toContainText(expectedText);
     }
 
     async clickConfirm(): Promise<void> {
@@ -74,7 +76,7 @@ export class ConfirmDialogPopupPage extends BasePage {
     }
 
     async verifyPopupHidden(): Promise<void> {
-        await this.elementToBeHidden(this.formLocator);
+        await expect(this.uniqueElement).toBeHidden();
     }
 }
 ```
@@ -159,42 +161,21 @@ export class WikipediaLoginPage extends BasePage {
 
 ## BasePage Assertion Methods
 
-**Rule:** Any verification using Playwright expect matchers (like `toHaveTitle`, `toBeVisible`, `toHaveText`, etc.) must be added to `BasePage` as a generic method.
-
-**Rationale:** Centralizes assertion logic, ensures consistent timeout handling, and provides consistent error messages across all Page Objects.
+**Rule:** Direct Playwright `expect` matchers are allowed in Page Objects. However, highly reusable or generic assertions can be added to `BasePage` as shared methods to avoid duplication.
 
 **Examples:**
 
 ```typescript
-// ❌ BAD: Direct expect in Page Object
+// ✅ GOOD: Direct expect in Page Object is now allowed
 async verifyLoginPageTitle(): Promise<void> {
     await expect(this.page).toHaveTitle(/Log in/i);
 }
 
-// ✅ GOOD: Use BasePage method
-async verifyLoginPageTitle(): Promise<void> {
-    await this.verifyPageTitle(/Log in/i);
+// ✅ GOOD: Use BasePage method for generic, shared actions if defined
+async verifyCondition(): Promise<void> {
+    await this.verifyPageOpened();
 }
 ```
-
-**Available BasePage Methods:**
-- `elementToBeVisible()` - Verify element is visible
-- `elementToBeHidden()` - Verify element is hidden
-- `elementToBeEnabled()` / `elementToBeDisabled()` - Verify element state
-- `elementToBeChecked()` - Verify checkbox state
-- `elementToHaveText()` - Verify exact text match
-- `elementToContainText()` - Verify text contains substring
-- `elementToHaveValue()` - Verify input value
-- `elementToHaveAttribute()` - Verify element attribute
-- `elementToHaveCss()` - Verify CSS property
-- `verifyPageTitle()` - Verify page title (string or RegExp)
-- `verifyPageOpened()` - Verify page is loaded (uses formLocator)
-
-All methods support:
-- `useSoftAssertions` - Use soft assertions (default: false)
-- `timeout` - Override default timeout (uses assertion timeout from config by default)
-
----
 
 ## Before Creating
 
@@ -219,15 +200,17 @@ Same page → extend existing | Similar page → inheritance | Different page �
 ## Page Object Structure
 
 ```typescript
-import { Page, Locator } from "@playwright/test";
+import { expect, Page, Locator } from "@playwright/test";
 import { BasePage } from "@pages/BasePage";
 
 export class PageName extends BasePage {
+    protected readonly uniqueElement: Locator;
     private readonly submitButton: Locator;
     private readonly messageLabel: Locator;
 
     constructor(page: Page) {
-        super(page, page.locator("#unique-container"), "Page Name");
+        super(page);
+        this.uniqueElement = page.locator("#unique-container");
 
         // Elements - ONE locator each, use .describe() for debugging
         this.submitButton = page.locator("#submit-btn").describe("Submit button");
@@ -238,7 +221,7 @@ export class PageName extends BasePage {
      * Click submit button
      */
     async clickSubmit(): Promise<void> {
-        await this.elementToBeVisible(this.submitButton);
+        await expect(this.submitButton).toBeVisible();
         await this.submitButton.click();
     }
 
@@ -246,7 +229,7 @@ export class PageName extends BasePage {
      * Get message text
      */
     async getMessageText(): Promise<string> {
-        await this.elementToBeVisible(this.messageLabel);
+        await expect(this.messageLabel).toBeVisible();
         const text = await this.messageLabel.textContent();
         return text || "";
     }
@@ -261,10 +244,12 @@ For locators that depend on parameters (index, text, ID), use **arrow function c
 
 ```typescript
 export class WikipediaArticlePage extends BasePage {
+    protected readonly uniqueElement: Locator;
     private readonly paragraphs: (index: number) => Locator;
 
     constructor(page: Page) {
-        super(page, page.getByRole('link', { name: 'Edit' }), 'WikipediaArticlePage');
+        super(page);
+        this.uniqueElement = page.getByRole('link', { name: 'Edit' });
         // ✅ Arrow function for parameterized locator
         this.paragraphs = (index: number) => 
             page.locator('#mw-content-text .mw-parser-output > p')
@@ -278,8 +263,8 @@ export class WikipediaArticlePage extends BasePage {
     async verifyParagraphContainsText(expectedText: string, index: number = 0): Promise<void> {
         // ✅ Use dynamic locator directly - no intermediate variables
         const paragraph = this.paragraphs(index);
-        await this.elementToBeVisible(paragraph);
-        await this.elementToContainText(paragraph, expectedText);
+        await expect(paragraph).toBeVisible();
+        await expect(paragraph).toContainText(expectedText);
     }
 }
 ```
@@ -323,7 +308,7 @@ async verifyParagraphContainsText(expectedText: string, index: number = 0): Prom
 -   ✅ Playwright `Locator` used for all elements
 -   ✅ All locators have `.describe()` for debugging
 -   ✅ Dynamic locators use arrow function class properties
--   ✅ BasePage check methods used for validations
+-   ✅ BasePage inherited correctly with uniqueElement implemented
 -   ✅ Atomic public API
 -   ✅ No duplicate functionality
 -   ✅ ONE Page Object per unique page/URL

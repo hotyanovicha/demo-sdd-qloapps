@@ -4,13 +4,13 @@ import { RegistrationData } from '@types-ui/index';
 
 export class RegistrationPage extends BasePage {
   protected readonly uniqueElement = this.page.getByRole('heading', { name: /your personal information/i });
-  private readonly titleMrRadio = this.page.locator('input#id_gender1');
-  private readonly titleMrsRadio = this.page.locator('input#id_gender2');
-  private readonly firstNameInput = this.page.locator('input#customer_firstname');
-  private readonly lastNameInput = this.page.locator('input#customer_lastname');
-  private readonly passwordInput = this.page.locator('input#passwd');
-  private readonly phoneInput = this.page.getByLabel(/phone/i);
-  private readonly registerButton = this.page.getByRole('button', { name: /register/i });
+  private readonly titleMrRadio = this.page.locator('input#id_gender1').describe('Mr Title Radio');
+  private readonly titleMrsRadio = this.page.locator('input#id_gender2').describe('Mrs Title Radio');
+  private readonly firstNameInput = this.page.locator('input#customer_firstname').describe('First Name Input');
+  private readonly lastNameInput = this.page.locator('input#customer_lastname').describe('Last Name Input');
+  private readonly passwordInput = this.page.locator('input#passwd').describe('Password Input');
+  private readonly phoneInput = this.page.getByLabel(/phone/i).describe('Phone Input');
+  private readonly registerButton = this.page.getByRole('button', { name: /register/i }).describe('Register Button');
 
   constructor(page: Page) {
     super(page);

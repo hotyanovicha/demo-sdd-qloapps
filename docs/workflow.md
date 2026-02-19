@@ -41,7 +41,7 @@ If new locators, state validations, or interactions are needed:
 2. **Build Methods:** The agent adds atomic interactions and state queries to the Page Objects. **Common assertions** that are repeated across tests should be implemented directly within the Page Object Model (POM) files to minimize duplication.
 3. **Spec Orchestration:** The agent creates or updates the spec file (`.spec.ts`) to orchestrate the test workflow using the Page Object methods.
 4. **Specific Assertions:** The agent writes test-specific assertions directly within the spec files.
-5. **Authentication:** For tests requiring authentication, the agent passes credentials directly into `wikipediaAuthPage.authenticateUser(username, password)`.
+5. **Fixtures & Authentication:** Use existing Playwright fixtures for authorization and page setup. **Do not create new fixtures** without explicit approval from an engineer.
 6. **Self-Documenting Code:** The agent relies on clear method names and does NOT add explanatory architecture comments. It may use `@step` decorators on Page Object methods to organize large flows.
 7. **Maps:** The agent updates `docs/maps/page-object-map.md` to reflect any new abstractions created.
 
@@ -75,6 +75,4 @@ If new locators, state validations, or interactions are needed:
 When preparing a Pull Request:
 1. **Verify all tests pass** (100% required).
 2. **Stage changes** (`git add`) - **Only `.ts` files (tests, pages)**. Do NOT add `.feature` files or speculative inputs.
-3. **Create commit** with descriptive message.
-4. **Push branch** to remote.
-5. Provide the human operator with a summary of the automated work for final review.
+3. Provide the human operator with a summary of the automated work for final review.

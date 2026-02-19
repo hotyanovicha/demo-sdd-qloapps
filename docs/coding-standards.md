@@ -46,7 +46,7 @@ pnpm typecheck && pnpm lint
 - **Explicit Return Types**: Define return types for all methods.
 - **Meaningful Names**: Descriptive variable and function names.
 - **JSDoc**: Documentation for classes and public methods with non-obvious behavior. Simple self-documenting methods (like `clickLogin()`) may omit JSDoc if the method name clearly conveys intent.
-- **Assertion Standards**: Use custom matchers (`toHaveStatusCode`) and schema validation helpers (`assertSchema`).
+- **Assertion Standards**: Use custom matchers (`toHaveStatusCode`) and schema validation helpers (`assertSchema`). Direct Playwright `expect()` assertions are **allowed** in Page Objects. General steps and assertions can be added to the base page.
 
 ---
 
@@ -443,6 +443,15 @@ public getRandomArticle(): string {
 
 ---
 
+## Test Fixtures
+
+**Rule:** Playwright fixtures should be used primarily for **authorization** or **page setup**. 
+
+- **No API setup**: For now, do not use fixtures for API data setup.
+- **Approval required**: Do not create new fixtures without explicit approval from an engineer. Use existing fixtures wherever possible.
+
+---
+
 ## Test Structure: Preconditions
 
 **Rule:** If a test has a **reusable precondition** (e.g., "log in as a specific user"), implement it in `test.beforeEach(...)` inside the same `test.describe(...)` block.
@@ -648,10 +657,10 @@ test('Nav', async ({ wikipediaMainPage }) => {
 
 ## Assertions: URL Checks
 
-**Rule:** 🔴 **Never assert or validate URLs** in UI tests or Page Objects.
+**Rule:** While unique elements on the page should be the primary way to assert a page has loaded correctly, agents **are allowed** to assert or validate URLs if it is required for the specific test scenario.
 
-- **Do instead**: Assert via stable UI signals (page heading, key container visibility, unique content, and/or page title) using common assertions in POM or specific assertions in specs.
-- **Why**: URLs in MediaWiki flows can vary (auth redirects, returnto params, UI routing), making URL assertions flaky.
+- **Primary mechanism**: Assert via stable UI signals (page heading, key container visibility, unique content, and/or page title).
+- **Secondary mechanism**: URL assertions, when necessary.
 
 ## Test Comments
 
