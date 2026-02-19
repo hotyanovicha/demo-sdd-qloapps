@@ -16,7 +16,11 @@ export const test = base.extend<CustomFixtures>({
 
   authPages: async ({ browser }, use) => {
     const user = createRegistrationData();
-    const context = await browser.newContext();
+    const context = await browser.newContext({
+      recordVideo: {
+        dir: 'test-results/auth-fixture-videos/',
+      } 
+    });
     const page = await context.newPage();
     const authPage = new PageManager(page);
 
