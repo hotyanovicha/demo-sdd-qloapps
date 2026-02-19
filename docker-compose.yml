@@ -1,5 +1,6 @@
 services:
   app:
+    image: ${APP_IMAGE:-qloapps_app}
     build: .
     container_name: qloapps_build_app
     ports:
