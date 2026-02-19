@@ -21,11 +21,11 @@ export default defineConfig({
   /* Limit to 1 worker on CI; use all available CPUs locally. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [['html', { open: 'never' }], ['junit', { outputFile: 'test-results/results.xml' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.BASE_URL,
+    baseURL: process.env.BASE_URL || 'http://localhost:8080',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on',
