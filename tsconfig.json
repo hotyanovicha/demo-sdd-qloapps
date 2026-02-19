@@ -10,13 +10,31 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@src/*": ["src/*"],
-      "@pages/*": ["src/ui/pages/*"],
-      "@fixtures/*": ["src/ui/fixtures/*"],
-      "@constants/*": ["src/ui/test-data/constants/*"],
-      "@types-ui/*": ["src/ui/types/*"]
+      "@src/*": [
+        "src/*"
+      ],
+      "@pages/*": [
+        "src/ui/pages/*"
+      ],
+      "@fixtures/*": [
+        "src/ui/fixtures/*"
+      ],
+      "@constants/*": [
+        "src/ui/test-data/constants/*"
+      ],
+      "@types-ui/*": [
+        "src/ui/types/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

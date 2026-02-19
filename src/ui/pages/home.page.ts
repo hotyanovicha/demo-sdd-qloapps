@@ -1,5 +1,6 @@
 import { Page } from '@playwright/test';
 import { BasePage } from './base.page';
+import { step } from '@utils/decorators';
 
 export class HomePage extends BasePage {
   protected readonly uniqueElement = this.page.locator('#header');
@@ -9,6 +10,7 @@ export class HomePage extends BasePage {
     super(page);
   }
 
+  @step()
   async goToSignIn(): Promise<void> {
     await this.signInLink.click();
   }

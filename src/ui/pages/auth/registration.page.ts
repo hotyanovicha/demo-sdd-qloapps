@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { BasePage } from '../base.page';
 import { RegistrationData } from '@types-ui/index';
+import { step } from '@utils/decorators';
 
 export class RegistrationPage extends BasePage {
   protected readonly uniqueElement = this.page.getByRole('heading', { name: /your personal information/i });
@@ -16,6 +17,7 @@ export class RegistrationPage extends BasePage {
     super(page);
   }
 
+  @step()
   async register(data: RegistrationData): Promise<void> {
     const titleRadio = data.title === 'Mr' ? this.titleMrRadio : this.titleMrsRadio;
     await titleRadio.check();
