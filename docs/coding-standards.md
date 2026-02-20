@@ -45,7 +45,7 @@ pnpm typecheck && pnpm lint
 - **Async/Await**: Always use `async/await` for Playwright interactions.
 - **Explicit Return Types**: Define return types for all methods.
 - **Meaningful Names**: Descriptive variable and function names.
-- **JSDoc**: Documentation for classes and public methods with non-obvious behavior. Simple self-documenting methods (like `clickLogin()`) may omit JSDoc if the method name clearly conveys intent.
+- **Step descriptions**: Every `@step()` method in a Page Object must have a human-readable description: `@step('description')`. This is what appears in Playwright HTML reports. Utils functions must have JSDoc with `@param` and `@returns` tags.
 - **Assertion Standards**: Use custom matchers (`toHaveStatusCode`) and schema validation helpers (`assertSchema`). Direct Playwright `expect()` assertions are **allowed** in Page Objects. General steps and assertions can be added to the base page.
 
 ---
@@ -161,36 +161,27 @@ export function getEnvironment(): Environment {
 
 | Alias | Maps To | Usage |
 |-------|---------|-------|
-| `@pages/*` | `tests/pages/*` | Page Objects |
-| `@api` | `tests/api` | API layer (barrel export) |
-| `@api/*` | `tests/api/*` | API services, routes, schemas |
-| `@fixtures/*` | `tests/fixtures/*` | Test fixtures |
+| `@src/*` | `src/*` | Source root |
+| `@pages/*` | `src/ui/pages/*` | Page Objects |
+| `@fixtures/*` | `src/ui/fixtures/*` | Test fixtures |
+| `@constants/*` | `src/ui/test-data/constants/*` | URL constants, etc. |
+| `@types-ui/*` | `src/ui/types/*` | TypeScript interfaces |
 | `@utils/*` | `utils/*` | Utility functions |
-| `@data/*` | `tests/data/*` | Test data files |
 
 ### Import Patterns
 
 ```typescript
 // ✅ GOOD: Use path aliases
-import { test } from '@fixtures';
-import { WikipediaLoginPage } from '@pages/WikipediaLoginPage';
-import { getEnvironment } from '@utils/config';
-import { getWikipediaCredentials } from '@utils/secrets';
-import { SearchService } from '@api/services';
-
-// ✅ GOOD: Import from barrel exports (index.ts)
-import { WikipediaMainPage, WikipediaLoginPage } from '@pages';
+import { test } from '@fixtures/index';
+import { HomePage } from '@pages/home.page';
+import { URLS } from '@constants/urls';
+import { getSearchDates } from '@utils/dates';
 
 // ❌ BAD: Relative paths
-import { test } from '../fixtures';
-import { WikipediaLoginPage } from '../pages/WikipediaLoginPage';
-import { getEnvironment } from '../../utils/config';
+import { test } from '../fixtures/index';
+import { HomePage } from '../../pages/home.page';
+import { URLS } from '../../test-data/constants/urls';
 ```
-
-### When to Use Barrel Exports vs Direct Imports
-
-- **Barrel exports** (`@pages`): When importing multiple items or when the exact file doesn't matter
-- **Direct imports** (`@pages/WikipediaLoginPage`): When importing a single specific class/file
 
 ---
 
@@ -222,14 +213,16 @@ All utility files use **kebab-case** (lowercase with hyphens):
 
 ```
 utils/
-  api-client.ts       # API request wrapper
-  array-utils.ts      # Array helpers
-  config.ts           # Environment configuration
-  decorators.ts       # @step decorator
-  json-loader.ts      # JSON file loading
-  matchers.ts         # Custom expect matchers
-  parse-response.ts   # Zod schema validation
-  secrets.ts          # Credentials from env vars
+  api-client.ts           # API request wrapper
+  array-utils.ts          # Array helpers
+  config.ts               # Environment configuration
+  dates.ts                # Date utilities for search form inputs
+  decorators.ts           # @step decorator
+  file-utils.ts           # File system operations
+  json-loader.ts          # JSON file loading
+  matchers.ts             # Custom expect matchers
+  parse-response.ts       # Zod schema validation
+  secrets.ts              # Credentials from env vars
   test-data-generator.ts  # Faker.js random data
   test-data-provider.ts   # Static JSON data
 ```
@@ -246,23 +239,14 @@ utils/
 ## Method Naming Patterns
 
 ### Actions
-- `click*()` - Click elements
-- `enter*()` - Input text
-- `select*()` - Select from dropdowns
-- `navigateTo*()` - Navigate to pages
-- `submit*()` - Submit forms
+- `goto*` — Navigate to a URL (inherited from `BasePage`)
+- `goTo*` — Click a navigation link (e.g. `goToSignIn()`)
+- `fill*` — Fill a form or form fields (e.g. `fillSearchForm()`)
+- `submit*` — Submit a form (e.g. `submitSearch()`)
+- `login()`, `register()`, `createAccount()` — Named by intent when no prefix fits
 
-### Validations
-- `is*Displayed()` - Check visibility
-- `is*Enabled()` - Check if enabled
-- `verify*()` - Complex validations
-- `get*()` - Retrieve values
-- `has*()` - Check existence
-
-### State
-- `waitFor*()` - Wait conditions
-- `refresh*()` - Refresh elements
-- `clear*()` - Clear inputs/states
+### Assertions
+- `expect*` — Playwright assertions (e.g. `expectHeadingVisible()`, `expectUserName()`)
 
 ---
 
@@ -288,42 +272,28 @@ utils/
 
 ```
 utils/
-├── config.ts           → Environment config (URLs, timeouts) from JSON
-├── Secrets.ts          → Credentials from env vars (.env / CI)
-├── TestDataProvider.ts → High-level API for tests (uses Secrets + JsonLoader)
-├── JsonLoader.ts       → Internal: loads JSON files
-├── TestDataGenerator.ts → Random data generation (Faker.js)
-└── ArrayUtils.ts       → Array utilities (getRandomItem, shuffle)
+├── api-client.ts        → HTTP client wrapper for API testing
+├── array-utils.ts       → Array manipulation utilities
+├── config.ts            → Environment config (URLs, timeouts) from JSON
+├── dates.ts             → Date utilities for search form inputs
+├── decorators.ts        → Step decorator for Playwright reports
+├── file-utils.ts        → File system operations (internal)
+├── json-loader.ts       → JSON file loading (internal)
+├── matchers.ts          → Custom Playwright assertions
+├── parse-response.ts    → API response parsing with Zod
+├── secrets.ts           → Credentials from env vars
+├── test-data-generator.ts → Random data generation (Faker.js)
+└── test-data-provider.ts  → Static test data from JSON
 ```
 
 ### When to Use Each
 
 | Need | Use | Example |
 |------|-----|---------|
-| URLs, timeouts | `config.ts` | `getEnvironment().wikipedia.mainPageUrl` |
-| Credentials | `Secrets.ts` | `getWikipediaCredentials()` |
-| Static test data (JSON) | `TestDataProvider` | `getRandomArticle()` |
-| Random/generated data | `TestDataGenerator` | `randomUsername()` |
-
-### Usage Examples
-
-```typescript
-// In Tests: credentials from Secrets
-import { getWikipediaCredentials } from '@utils/secrets';
-const { username, password } = getWikipediaCredentials();
-
-// In Tests: static data from TestDataProvider
-import { getRandomArticle } from '@utils/test-data-provider';
-const article = getRandomArticle();
-
-// In Page Objects: URLs from config
-import { getEnvironment } from '@utils/config';
-await this.page.goto(getEnvironment().wikipedia.mainPageUrl);
-
-// For random data: TestDataGenerator
-import { randomUsername } from '@utils/test-data-generator';
-const username = randomUsername();
-```
+| Search dates | `dates.ts` | `getSearchDates()` |
+| Random/generated data | `test-data-generator.ts` | `randomEmail()` |
+| Static test data (JSON) | `test-data-provider.ts` | `getRandomArticle()` |
+| Credentials | `secrets.ts` | `getCredentials()` |
 
 ### Utility Functions: Error Handling
 
@@ -634,33 +604,60 @@ Move constants to `tests/data/*.json` when:
 
 ## Navigation Pattern
 
-**Rule:** Never use `page.goto()` directly in Tests. Navigation must go through Page Object `navigate()` methods.
+**Rule:** Page Objects that have a fixed entry URL expose an `open()` method. Tests call `open()` — they do not import `URLS` or call `goto()` directly.
 
 | Layer | Can Navigate? | How |
 |-------|---------------|-----|
-| Test (spec) | ❌ No | Calls Page Object `navigate()` |
-| Page Object | ✅ Yes | Uses `page.goto()` with URL from environment config |
+| Test (spec) | ✅ Yes | `pages.homePage.open()` |
+| Page Object | ✅ Yes | `open()` calls `this.goto(URLS.XXX)` internally |
 
 ```typescript
-// ❌ BAD: Direct page.goto in Specs
-test('Nav', async ({ page }) => {
-    await page.goto(getEnvironment().wikipedia.mainPageUrl);
-});
+// ✅ GOOD: Test calls open() — no URL knowledge needed in the test
+await pages.homePage.open();
 
-// ✅ GOOD: Specs call Page Object navigate()
-test('Nav', async ({ wikipediaMainPage }) => {
-    await wikipediaMainPage.navigate();
-});
+// ✅ GOOD: Page Object owns the URL constant
+import { URLS } from '@constants/urls';
+
+@step()
+async open(): Promise<void> {
+  await this.goto(URLS.HOME);
+}
+
+// ❌ BAD: Test imports URLS and calls goto() directly
+import { URLS } from '@constants/urls';
+await pages.homePage.goto(URLS.HOME);
+
+// ❌ BAD: Hardcoded URL anywhere
+await pages.homePage.goto('http://localhost:8080/en/');
 ```
+
+URL constants live in `src/ui/test-data/constants/urls.ts`. Only Page Objects import them.
 
 ---
 
 ## Assertions: URL Checks
 
-**Rule:** While unique elements on the page should be the primary way to assert a page has loaded correctly, agents **are allowed** to assert or validate URLs if it is required for the specific test scenario.
+**Rule:** Page identity must be confirmed via `uniqueElement` and `waitForLoad()` — not via URL assertion methods in Page Objects.
 
-- **Primary mechanism**: Assert via stable UI signals (page heading, key container visibility, unique content, and/or page title).
-- **Secondary mechanism**: URL assertions, when necessary.
+- **In Page Objects**: Do NOT add `expectXxxUrl()` methods. The `uniqueElement` defined on each PO uniquely identifies the page.
+- **In Tests**: Direct URL assertions (`expect(page).toHaveURL(...)`) are allowed when a test scenario specifically needs to verify the URL pattern.
+
+```typescript
+// ❌ BAD — URL assertion method encapsulated in Page Object:
+async expectSearchResultsUrl(): Promise<void> {
+  await expect(this.page).toHaveURL(/category_data_cont/);
+}
+
+// ✅ GOOD — Use uniqueElement to confirm page load:
+await pages.searchResultsPage.waitForLoad(); // waits for uniqueElement (#category_data_cont)
+
+// ✅ ALSO OK — URL assertion in a test when URL is specifically part of the scenario:
+// Use the `page` fixture directly, not via Page Object bracket access
+test('...', async ({ page, pages }) => {
+  // ...
+  await expect(page).toHaveURL(/\/my-account/);
+});
+```
 
 ## Test Comments
 

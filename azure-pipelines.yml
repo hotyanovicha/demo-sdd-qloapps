@@ -2,21 +2,27 @@
 # Pull a Docker image, Run app, Run Tests
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-trigger:
-- main
+trigger: none
 
 resources:
 - repo: self
 
 variables:
+  - group: playwright-testing-service
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'ghcr-connection' # You might need to adjust this name
-  imageRepository: 'hotyanovicha/demo-sdd-qloapps' # Adjust based on your GHCR repository name
-  containerRegistry: 'ghcr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
-  tag: '$(Build.BuildId)'
+  - name: dockerRegistryServiceConnection
+    value: 'ghcr-connection' # You might need to adjust this name
+  - name: imageRepository
+    value: 'hotyanovicha/demo-sdd-qloapps' # Adjust based on your GHCR repository name
+  - name: containerRegistry
+    value: 'ghcr.io'
+  - name: dockerfilePath
+    value: '$(Build.SourcesDirectory)/Dockerfile'
+  - name: tag
+    value: '$(Build.BuildId)'
   # Environment variables for the test
-  BASE_URL: 'http://localhost:8080'
+  - name: BASE_URL
+    value: 'http://localhost:8080'
 
 pool:
   vmImage: ubuntu-latest
@@ -111,11 +117,13 @@ stages:
       displayName: 'Install Playwright Browsers'
 
     - script: |
-        npx playwright test
-      displayName: 'Run Playwright tests'
+        npx playwright test -c playwright.service.config.ts
+      displayName: 'Run Playwright tests and publish cloud report'
       env:
         BASE_URL: $(BASE_URL)
         CI: 'true'
+        PLAYWRIGHT_SERVICE_URL: $(PLAYWRIGHT_SERVICE_URL)
+        PLAYWRIGHT_SERVICE_ACCESS_TOKEN: $(PLAYWRIGHT_SERVICE_ACCESS_TOKEN)
 
     - task: PublishTestResults@2
       condition: always()

@@ -32,7 +32,7 @@
     - Prefer simple, semantic locators (e.g., `page.getByRole('link', { name: 'Edit' })`) over complex structural selectors
     - **Example:** Article pages use "Edit" link (unique), Main Page uses "View source" (different) - verify both pages to ensure uniqueness
 15. **Expect assertions** - Direct Playwright `expect()` matchers (like `toHaveTitle`, `toBeVisible`) are allowed in Page Objects. General, shared assertion steps can be added to `BasePage` to avoid duplication.
-16. **JSDoc on complex methods** - Methods with non-obvious behavior should have JSDoc comments. Simple self-documenting methods (like `clickLogin()`) may omit JSDoc if the method name clearly conveys intent.
+16. **Step description on every method** - Every `@step()` method must have a human-readable description string: `@step('description')`. This description appears in Playwright HTML reports as the step name.
 17. **🔴 Page Object-specific constants** - Constants specific to a Page Object (like page titles, specific text values) must be stored as constants at the top of the Page Object file. Use UPPER_SNAKE_CASE naming.
 18. **🔴 Locator extraction process** - Follow [locators.md](locators.md) methodology for creating new locators. **MCP verification is MANDATORY** - Always verify uniqueness before implementation.
 19. **🔴 Dynamic locators as arrow functions** - For parameterized locators (by index, text, etc.), use arrow function class properties instead of inline creation in methods. **Use dynamic locators directly** - Call the arrow function directly in methods (e.g., `this.paragraphs(index)`), do not create intermediate variables or helper methods.
@@ -83,45 +83,28 @@ export class ConfirmDialogPopupPage extends BasePage {
 
 ---
 
-## JSDoc Documentation
+## Step Descriptions for Reporting
 
-**Rule:** Methods with non-obvious behavior should have JSDoc comments. Simple self-documenting methods may omit JSDoc.
-
-**When to use JSDoc:**
-- Methods with parameters that need explanation
-- Methods with complex/multi-step behavior
-- Methods where the name doesn't fully convey intent
-
-**When to omit JSDoc:**
-- Self-documenting methods like `clickLogin()`, `enterUsername()`
-- Methods where the name clearly describes the action
-
-**Examples:**
+**Rule:** Every `@step()` method must have a human-readable description string. This is what appears in Playwright HTML reports as the step name.
 
 ```typescript
-// ✅ GOOD: JSDoc for method with parameters that need explanation
-/**
- * Verify paragraph at specified index contains expected text
- * @param expectedText Expected text in paragraph
- * @param index Paragraph index (0-based, defaults to 0)
- */
-async verifyParagraphContainsText(expectedText: string, index: number = 0): Promise<void> {
-    const paragraph = this.paragraphs(index);
-    await this.elementToContainText(paragraph, expectedText);
+// ✅ GOOD
+@step('Open home page')
+async open(): Promise<void> {
+  await this.page.goto(URLS.HOME);
 }
 
-// ✅ GOOD: Self-documenting method (JSDoc optional)
-async clickLogin(): Promise<void> {
-    await this.loginButton.click();
+@step('Select hotel from dropdown and pick check-in / check-out dates')
+async fillSearchForm(hotelName: string, checkInDay: string, checkOutDay: string): Promise<void> {
+  // ...
 }
 
-// ✅ GOOD: Self-documenting method (JSDoc optional)
-async enterUsername(username: string): Promise<void> {
-    await this.usernameInput.fill(username);
+// ❌ BAD: missing description — report shows "HomePage.fillSearchForm" instead of a readable label
+@step()
+async fillSearchForm(hotelName: string, checkInDay: string, checkOutDay: string): Promise<void> {
+  // ...
 }
 ```
-
-**Note:** Private methods may omit JSDoc if their purpose is obvious from the method name.
 
 ---
 
@@ -302,6 +285,7 @@ async verifyParagraphContainsText(expectedText: string, index: number = 0): Prom
 
 ## Success Criteria
 
+-   ✅ All `@step()` methods have a human-readable description string
 -   ✅ Existing Page Objects searched and reused
 -   ✅ ONE verified locator per element
 -   ✅ Reuses existing locators and keeps them centralized in Page Objects

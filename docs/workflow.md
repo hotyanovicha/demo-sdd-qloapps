@@ -57,7 +57,7 @@ If new locators, state validations, or interactions are needed:
 
 ## Documentation References
 
-**Reference:** `.cursorrules` is the authoritative source for all coding rules and structure.
+**Reference:** `docs/coding-standards.md` is the authoritative source for all coding rules and structure.
 
 | Pattern | Document |
 |---------|----------|

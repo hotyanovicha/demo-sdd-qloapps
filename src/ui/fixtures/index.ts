@@ -24,7 +24,7 @@ export const test = base.extend<CustomFixtures>({
     const page = await context.newPage();
     const authPage = new PageManager(page);
 
-    await authPage.homePage.goto(URLS.HOME);
+    await authPage.homePage.open();
     await authPage.homePage.waitForLoad();
     await authPage.homePage.goToSignIn();
     await authPage.authPage.waitForLoad();
