@@ -115,15 +115,19 @@ stages:
         npx playwright install --with-deps chromium
       displayName: 'Install Playwright Browsers'
 
-    - script: |
-        npx playwright test -c playwright.service.config.ts
-      displayName: 'Run Playwright tests and publish cloud report'
+    - task: AzureCLI@2
+      displayName: 'Azure Login and Run Playwright'
+      inputs:
+        azureSubscription: 'azure-playwright-connection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Successfully logged into Azure using Managed Identity"
+          npx playwright test -c playwright.service.config.ts
       env:
         BASE_URL: $(BASE_URL)
         CI: 'true'
         PLAYWRIGHT_SERVICE_URL: $(PLAYWRIGHT_SERVICE_URL)
-        PLAYWRIGHT_SERVICE_ACCESS_TOKEN: $(PLAYWRIGHT_SERVICE_ACCESS_TOKEN)
-
     - task: PublishTestResults@2
       condition: always()
       inputs:
