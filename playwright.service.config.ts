@@ -1,19 +1,17 @@
 import { defineConfig } from '@playwright/test';
-import { getServiceConfig } from '@azure/playwright';
+import { getServiceConfig, ServiceOS } from '@azure/microsoft-playwright-testing';
 import config from './playwright.config';
 
 export default defineConfig(
   config,
-  getServiceConfig({
+  getServiceConfig(config, {
     exposeNetwork: '<loopback>',
     timeout: 30000,
-    os: 'linux',
-    useCloudHostedBrowsers: false,
+    os: ServiceOS.LINUX,
+    useCloudHostedBrowsers: false, // Отключаем выполнение тестов в облаке, только репорты
   }),
   {
-    reporter: [
-      ['html', { open: 'never' }],
-      ['@azure/playwright/reporter']
-    ],
+    // Добавляем репортер для портала Azure
+    reporter: [['list'], ['@azure/microsoft-playwright-testing/cli-reporter']],
   }
 );

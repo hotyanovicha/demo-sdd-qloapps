@@ -17,7 +17,7 @@
     "test:ui-browserstack": "browserstack-node-sdk playwright test --ui"
   },
   "devDependencies": {
-    "@azure/playwright": "^1.1.2",
+    "@azure/microsoft-playwright-testing": "1.0.0-beta.9",
     "@faker-js/faker": "^10.1.0",
     "@playwright/cli": "^0.1.1",
     "@playwright/test": "1.58.2",
