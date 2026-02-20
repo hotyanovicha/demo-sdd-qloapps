@@ -341,4 +341,3 @@ EOF
 
 ## Reference
 See `docs/coding-standards.md` for the authoritative coding standards.
-See `.claude/testing-principles.md` for the quick-reference summary.
