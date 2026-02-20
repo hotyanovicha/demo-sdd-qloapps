@@ -17,7 +17,7 @@ export class RegistrationPage extends BasePage {
     super(page);
   }
 
-  @step()
+  @step('Fill personal information form and click Register')
   async register(data: RegistrationData): Promise<void> {
     const titleRadio = data.title === 'Mr' ? this.titleMrRadio : this.titleMrsRadio;
     await titleRadio.check();

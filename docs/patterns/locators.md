@@ -15,9 +15,9 @@ Universal process for creating stable, maintainable UI locators using Playwright
 Before implementing ANY new locator, you MUST:
 
 - [ ] **Step 1:** Checked [page-object-map.md](../maps/page-object-map.md) and existing Page Objects
-- [ ] **Step 2:** Used `mcp_playwright_browser_navigate` to navigate to target page
-- [ ] **Step 3:** Used `mcp_playwright_browser_snapshot` to see page structure
-- [ ] **Step 4:** Used `mcp_playwright_browser_evaluate` to extract HTML and verify uniqueness
+- [ ] **Step 2:** Used `playwright-cli goto` to navigate to target page
+- [ ] **Step 3:** Used `playwright-cli snapshot` to see page structure
+- [ ] **Step 4:** Used `playwright-cli eval` to extract HTML and verify uniqueness
 - [ ] **Step 5:** Verified locator returns exactly 1 element (not 0, not 2+)
 - [ ] **Step 6:** Documented verification results before implementation
 
@@ -56,14 +56,15 @@ Before implementing ANY new locator, you MUST:
 
 **Required Actions (in order):**
 
-1. **Navigate to target page** using MCP:
-   ```
-   mcp_playwright_browser_navigate → url: "{target_page_url}"
+1. **Navigate to target page** using playwright-cli:
+   ```bash
+   playwright-cli open
+   playwright-cli goto {target_page_url}
    ```
 
 2. **Take page snapshot** for visual confirmation:
-   ```
-   mcp_playwright_browser_snapshot
+   ```bash
+   playwright-cli snapshot
    ```
 
 3. **Identify target element** in the snapshot
@@ -86,9 +87,9 @@ Before implementing ANY new locator, you MUST:
 2. Use MCP browser_evaluate or snapshot
 3. Understand element position in hierarchy
 
-```
-# Extract container HTML via MCP
-mcp_playwright_browser_evaluate → function: "document.querySelector('#pt-login-2').outerHTML"
+```bash
+# Extract container HTML via playwright-cli
+playwright-cli eval "document.querySelector('#pt-login-2').outerHTML"
 ```
 
 **Key Observations to Document:**
@@ -129,12 +130,12 @@ mcp_playwright_browser_evaluate → function: "document.querySelector('#pt-login
 
 **Browser-Based Uniqueness Check (MANDATORY):**
 
-```javascript
-// Run via mcp_playwright_browser_evaluate
-// MUST verify each locator option returns exactly 1 element
-document.querySelectorAll('#wpName1').length  // Must return: 1
-document.querySelectorAll('input[name="wpName"]').length  // Must return: 1
-document.querySelectorAll('.mw-input').length  // Returns 3 → ❌ REJECT
+```bash
+# Run via playwright-cli eval
+# MUST verify each locator option returns exactly 1 element
+playwright-cli eval "document.querySelectorAll('#wpName1').length"          # Must return: 1
+playwright-cli eval "document.querySelectorAll('input[name=\"wpName\"]').length"  # Must return: 1
+playwright-cli eval "document.querySelectorAll('.mw-input').length"         # Returns 3 → ❌ REJECT
 ```
 
 **Verification Table (MUST document results):**
@@ -157,18 +158,18 @@ For `formLocator` (passed to `BasePage` constructor), you **MUST verify uniquene
 3. **Prefer simple, semantic locators** over complex structural selectors
 
 **Example Verification Process:**
-```javascript
-// Step 1: Navigate to article page
-mcp_playwright_browser_navigate → url: "https://test.wikipedia.org/wiki/Test"
-mcp_playwright_browser_evaluate → function: "document.querySelectorAll('a[href*=\"action=edit\"]').length"
-// Result: 1 ✅ (Edit link exists on article page)
+```bash
+# Step 1: Navigate to article page
+playwright-cli goto https://test.wikipedia.org/wiki/Test
+playwright-cli eval "document.querySelectorAll('a[href*=\"action=edit\"]').length"
+# Result: 1 ✅ (Edit link exists on article page)
 
-// Step 2: Navigate to Main Page
-mcp_playwright_browser_navigate → url: "https://test.wikipedia.org/wiki/Main_Page"
-mcp_playwright_browser_evaluate → function: "document.querySelectorAll('a[href*=\"action=edit\"]').length"
-// Result: 0 ✅ (Edit link does NOT exist on Main Page - it has "View source" instead)
+# Step 2: Navigate to Main Page
+playwright-cli goto https://test.wikipedia.org/wiki/Main_Page
+playwright-cli eval "document.querySelectorAll('a[href*=\"action=edit\"]').length"
+# Result: 0 ✅ (Edit link does NOT exist on Main Page - it has "View source" instead)
 
-// ✅ VERIFIED: formLocator is unique to article pages
+# ✅ VERIFIED: formLocator is unique to article pages
 ```
 
 **Good Examples:**
@@ -284,10 +285,10 @@ Before adding locator to Page Object:
 
 | ❌ Don't | ✅ Do |
 |----------|-------|
-| **Create locators without MCP verification** | **ALWAYS use MCP browser tools first** |
-| **Assume locator structure** | **Verify via `mcp_playwright_browser_evaluate`** |
+| **Create locators without verification** | **ALWAYS use `playwright-cli` to verify first** |
+| **Assume locator structure** | **Verify via `playwright-cli eval "document.querySelectorAll(...).length"`** |
 | Multiple locators for same element | ONE verified locator |
-| Skip uniqueness validation | Always verify count = 1 via MCP |
+| Skip uniqueness validation | Always verify count = 1 via `playwright-cli eval` |
 | Use dynamic/auto-generated IDs | Use stable IDs or roles (verify first) |
 | Overly broad selectors (`.btn`) | Specific selectors (`#login-btn`) |
 | Skip `.describe()` | Always add descriptions |
@@ -307,4 +308,70 @@ Before adding locator to Page Object:
 ---
 
 **📘 See complete walkthrough:** [locator-extraction-example.md](../examples/locator-extraction-example.md)
+
+---
+
+## QloApps UI Widget Patterns
+
+QloApps uses non-standard JavaScript widgets that require specific interaction approaches. Always verify with `playwright-cli` before implementing.
+
+### Chosen.js Hotel Dropdown
+
+The hotel selector wraps a hidden native `<select>` with a Chosen.js widget. The native select is not interactable — only the Chosen UI elements are visible.
+
+**❌ Wrong — native hidden select:**
+```typescript
+await this.page.locator('#id_hotel_button').selectOption('The Hotel Prime'); // throws: not visible
+```
+
+**✅ Correct — two-step Chosen.js interaction:**
+```typescript
+// 1. Click the visible trigger to open the dropdown list
+await this.page.locator('#id_hotel_button_chosen .chosen-single').click();
+// 2. Click the desired option text inside the Chosen container
+await this.page.locator('#id_hotel_button_chosen').getByText(hotelName).click();
+```
+
+Key locators:
+- Trigger: `#id_hotel_button_chosen .chosen-single`
+- Option container: `#id_hotel_button_chosen`
+- Option selection: `.getByText(hotelName)` scoped inside the container
+
+### Date Range Picker
+
+The datepicker is triggered by clicking a `<div>` (not an `<input>`). Days are selected by filtering CSS-classed calendar cells.
+
+**Trigger:**
+```typescript
+await this.page.locator('#daterange_value').click(); // <div>, not <input>
+```
+
+**Day selection — check-in then check-out:**
+```typescript
+// Use exact regex to avoid "1" matching "10", "11", "12", etc.
+await this.page.locator('.day.toMonth.valid')
+  .filter({ hasText: new RegExp(`^${checkInDay}$`) }).first().click();
+await this.page.locator('.day.toMonth.valid')
+  .filter({ hasText: new RegExp(`^${checkOutDay}$`) }).first().click();
+```
+
+Notes:
+- `.day.toMonth.valid` = current-month, non-blocked calendar days
+- `.first()` guards against strict-mode violations when two months are rendered
+- Day strings come from `getSearchDates()` in `@utils/dates`
+
+### User Dropdown (Header)
+
+QloApps uses a custom header dropdown, not a standard `<select>` or ARIA `combobox`.
+
+```typescript
+// Open
+await this.page.locator('#user_info_acc').click();
+// Sign out
+await this.page.locator('.header_user_info a[title="Log me out"]').click();
+```
+
+**❌ Wrong selectors (do not exist in QloApps DOM):**
+- `.user_info .dropdown-toggle`
+- `.logout`
 

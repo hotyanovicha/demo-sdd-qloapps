@@ -7,6 +7,7 @@ utils/
 ├── api-client.ts        → HTTP client wrapper for API testing
 ├── array-utils.ts       → Array manipulation utilities
 ├── config.ts            → Environment config (URLs, timeouts) from JSON
+├── dates.ts             → Date utilities for search form inputs
 ├── decorators.ts        → Step decorator for Playwright reports
 ├── file-utils.ts        → File system operations (internal)
 ├── json-loader.ts       → JSON file loading (internal)
@@ -24,6 +25,7 @@ utils/
 | `api-client.ts` | HTTP methods with base URL | API services |
 | `array-utils.ts` | Random item selection, shuffle | TestDataProvider |
 | `config.ts` | URLs, timeouts, API endpoints | Page Objects, playwright.config.ts |
+| `dates.ts` | `getSearchDates()` — relative check-in/check-out day strings | Tests (search specs) |
 | `decorators.ts` | `@step` decorator | Page Objects |
 | `file-utils.ts` | Path resolution, file reading | JsonLoader, internal utils |
 | `json-loader.ts` | JSON file loading | Config, TestDataProvider |
@@ -32,6 +34,33 @@ utils/
 | `secrets.ts` | Env var getters (credentials) | Tests, API builders |
 | `test-data-generator.ts` | Random data generation | Tests |
 | `test-data-provider.ts` | Static JSON data access | Tests |
+
+---
+
+## Date Utilities (`utils/dates.ts`)
+
+### `getSearchDates(startOffset?, duration?)`
+
+Returns day-of-month strings suitable for the hotel search datepicker.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `startOffset` | `number` | `1` | Days from today until check-in |
+| `duration` | `number` | `5` | Length of stay in nights |
+
+**Returns:** `{ checkInDay: string, checkOutDay: string, duration: number }`
+
+```typescript
+import { getSearchDates } from '@utils/dates';
+
+const { checkInDay, checkOutDay } = getSearchDates();        // tomorrow, +5 nights
+const { checkInDay, checkOutDay } = getSearchDates(2, 3);   // day-after-tomorrow, +3 nights
+const { checkInDay, checkOutDay, duration } = getSearchDates(1, 7); // tomorrow, +7 nights
+```
+
+> Returns day-of-month as string (e.g. `"15"`), matching the `.day.toMonth.valid` datepicker cells used by `HomePage.fillSearchForm()`.
+
+---
 
 ### Utils Documentation Rules
 
