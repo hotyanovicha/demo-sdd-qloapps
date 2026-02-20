@@ -5,6 +5,7 @@
       "Bash(tree:*)",
       "Bash(npx tsc:*)",
       "Skill(review-pr)",
+      "Skill(develop-test)",
       "Bash(git -C /Users/ahotyanovich/Documents/a1qa-GitHub/demo-sdd-qloapps/QloApps remote:*)",
       "Bash(du:*)",
       "Bash(git check-ignore:*)",

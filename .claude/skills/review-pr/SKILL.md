@@ -340,4 +340,5 @@ EOF
 **Important:** Do not ask the user if they want to post - automatically post the review after completing the analysis.
 
 ## Reference
-See `.claude/testing-principles.md` for detailed testing standards.
+See `docs/coding-standards.md` for the authoritative coding standards.
+See `.claude/testing-principles.md` for the quick-reference summary.
