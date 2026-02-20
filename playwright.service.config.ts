@@ -13,8 +13,14 @@ export default defineConfig(
   }),
   {
     reporter: [
-      ['html', { open: 'never' }],
+      ['html', { open: 'never', attachmentsBaseURL: 'data:' }],
+      ['junit', { outputFile: 'test-results/results.xml' }],
       ['@azure/playwright/reporter']
     ],
+    use: {
+      trace: 'on',
+      screenshot: 'only-on-failure',
+      video: 'retain-on-failure',
+    },
   }
 );

@@ -123,7 +123,20 @@ stages:
         scriptLocation: 'inlineScript'
         inlineScript: |
           echo "Successfully logged into Azure using Managed Identity"
-          npx playwright test -c playwright.service.config.ts
+          npx playwright test -c playwright.service.config.ts 2>&1 | tee test_output.txt
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+
+          # Extract the MPT portal report URL from test output
+          REPORT_URL=$(grep -oE 'https://portal\.azure\.com[^ ]*' test_output.txt | head -n 1)
+
+          if [ ! -z "$REPORT_URL" ]; then
+            echo "### 🎭 [Playwright Cloud Report]($REPORT_URL)" > $(System.DefaultWorkingDirectory)/cloud_report_summary.md
+            echo "" >> $(System.DefaultWorkingDirectory)/cloud_report_summary.md
+            echo "Click the link above to view detailed results in the Microsoft Playwright Testing portal." >> $(System.DefaultWorkingDirectory)/cloud_report_summary.md
+            echo "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Playwright Cloud Report;]$(System.DefaultWorkingDirectory)/cloud_report_summary.md"
+          fi
+
+          exit $TEST_EXIT_CODE
       env:
         BASE_URL: $(BASE_URL)
         CI: 'true'
