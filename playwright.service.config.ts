@@ -9,7 +9,8 @@ export default defineConfig(
     exposeNetwork: '<loopback>',
     timeout: 30000,
     os: ServiceOS.LINUX,
-    useCloudHostedBrowsers: false, // Отключаем выполнение тестов в облаке, только репорты
+    useCloudHostedBrowsers: false, // Отключаем выполнение тестов в облаке
+    serviceAuthType: 'ACCESS_TOKEN', // Явно указываем использовать PAT-токен
   }),
   {
     // Добавляем репортер для портала Azure
