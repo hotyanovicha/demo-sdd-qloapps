@@ -127,7 +127,7 @@ stages:
           TEST_EXIT_CODE=${PIPESTATUS[0]}
 
           # Extract the MPT portal report URL from test output
-          REPORT_URL=$(grep -oE 'https://portal\.azure\.com[^ ]*' test_output.txt | head -n 1)
+          REPORT_URL=$(grep -oE 'https://(ms\.)?portal\.azure\.com[^ ]*' test_output.txt | head -n 1)
 
           if [ ! -z "$REPORT_URL" ]; then
             echo "### 🎭 [Playwright Cloud Report]($REPORT_URL)" > $(System.DefaultWorkingDirectory)/cloud_report_summary.md
