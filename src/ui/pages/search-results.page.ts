@@ -11,12 +11,12 @@ export class SearchResultsPage extends BasePage {
     super(page);
   }
 
-  @step()
+  @step('Assert at least one room card is visible')
   async expectRoomsAvailable(): Promise<void> {
     await expect(this.roomCards.first()).toBeVisible();
   }
 
-  @step()
+  @step('Assert a room heading with the given category name is visible')
   async expectRoomCategoryPresent(categoryName: string): Promise<void> {
     await expect(this.roomHeadings.filter({ hasText: categoryName }).first()).toBeVisible();
   }

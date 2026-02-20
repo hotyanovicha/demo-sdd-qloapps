@@ -45,7 +45,7 @@ pnpm typecheck && pnpm lint
 - **Async/Await**: Always use `async/await` for Playwright interactions.
 - **Explicit Return Types**: Define return types for all methods.
 - **Meaningful Names**: Descriptive variable and function names.
-- **Step descriptions**: Pass a human-readable string to `@step('description')` for Page Object methods where `ClassName.methodName` wouldn't read clearly in a Playwright report. Self-explanatory methods use `@step()` with no argument. Utils functions must have JSDoc with `@param` and `@returns` tags.
+- **Step descriptions**: Every `@step()` method in a Page Object must have a human-readable description: `@step('description')`. This is what appears in Playwright HTML reports. Utils functions must have JSDoc with `@param` and `@returns` tags.
 - **Assertion Standards**: Use custom matchers (`toHaveStatusCode`) and schema validation helpers (`assertSchema`). Direct Playwright `expect()` assertions are **allowed** in Page Objects. General steps and assertions can be added to the base page.
 
 ---
