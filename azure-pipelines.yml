@@ -8,7 +8,6 @@ resources:
 - repo: self
 
 variables:
-  - group: playwright-testing-service
   # Container registry service connection established during pipeline creation
   - name: dockerRegistryServiceConnection
     value: 'ghcr-connection' # You might need to adjust this name
