@@ -1,12 +1,6 @@
 name: Docker
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'QloApps/**'
-      - 'Dockerfile'
-      - 'docker-compose.yml'
   workflow_dispatch:
 
 env:

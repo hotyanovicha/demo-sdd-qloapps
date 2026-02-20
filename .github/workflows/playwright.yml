@@ -2,8 +2,6 @@ name: pw
 run-name: >
   ${{ github.workflow }} :: run #${{ github.run_number }} :: ${{ inputs.project || 'all' }} :: ${{ inputs.priority || 'all' }}
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       project:
