@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test';
-import { getServiceConfig, ServiceOS } from '@azure/microsoft-playwright-testing';
 import config from './playwright.config';
+
+const { getServiceConfig, ServiceOS } = require('@azure/microsoft-playwright-testing');
 
 export default defineConfig(
   config,
@@ -12,6 +13,6 @@ export default defineConfig(
   }),
   {
     // Добавляем репортер для портала Azure
-    reporter: [['list'], ['@azure/microsoft-playwright-testing/cli-reporter']],
+    reporter: [['list'], ['@azure/microsoft-playwright-testing/reporter']],
   }
 );
