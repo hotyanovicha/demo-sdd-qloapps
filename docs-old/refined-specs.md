@@ -1,388 +1,285 @@
 # Refined Automation Specs (SDD)
 
-> [!NOTE] 
-> **UI-Only Logic**: All setup steps (user creation, order placement) must be performed via UI interactions. API calls are strictly forbidden for test data setup to ensure end-to-end coverage and "pure" user emulation.
-
-## Architecture Overview
-
-### Fixtures Needed
-- **`auth`**: Provides a `page` with a logged-in user state.
-    - *Setup (UI)*: Navigate to Sign In -> Key in email/details -> Submit Registration -> Verify 'My Account' landing.
-    - *Teardown*: None (ephemeral).
-- **`adminAuth`**: Provides a `page` with a logged-in admin state.
-    - *Setup (UI)*: Navigate to Admin URL -> Key in credentials -> Submit Login -> Verify Dashboard.
-- **`searchResults`**: Provides a `page` already on the search results page with valid rooms.
-- **`cartWithRoom`**: User with 1 room added to cart.
-    - *Setup (UI)*: Use `auth` -> Search for Room -> Click 'Book Now' -> Wait for Modal.
-- **`paymentReadyUser`**: User at the payment step of checkout.
-    - *Setup (UI)*: Use `cartWithRoom` -> Proceed to Checkout (Summary -> Address -> Payment).
-- **`completedOrder`**: User who has completed a checkout flow (Order Reference known).
-    - *Setup (UI)*: Use `paymentReadyUser` -> Select Bank Wire -> Confirm Order -> Capture Reference.
-- **`orderAwaitingPayment`**: Admin context with an order in "Awaiting payment" state.
-    - *Setup (UI)*: Create `completedOrder` in auxiliary context -> Login Admin -> Find Order.
-- **`orderWithAdminMessage`**: User context where admin has sent a message.
-    - *Setup (UI)*: Create `orderAwaitingPayment` -> Admin sends message -> Return User context.
-
-### Page Objects (To Be Created)
-- **`HomePage`**: Search form, Navigation.
-- **`AuthPage`**: Login/Registration forms.
-- **`MyAccountPage`**: Dashboard links.
-- **`SearchResultsPage`**: List of rooms, "Book Now" buttons.
-- **`CartModal`**: "Proceed to checkout" modal.
-- **`OrderSummaryPage`**: Cart summary table.
-- **`CheckoutPage`**: Guest info, Address, Payment steps.
-- **`OrderConfirmationPage`**: Success message, Order Reference.
-- **`OrderHistoryPage`**: List of past orders.
-- **`AdminLoginPage`**: Back-office login.
-- **`AdminDashboardPage`**: Stats widgets.
-- **`AdminOrdersPage`**: Order table, filters.
-- **`AdminOrderDetailsPage`**: Status update, Messages.
-- **`AdminCustomersPage`**: Customer table, filters.
-
----
-
 ## Scenarios
 
-### 1. User Registration
-
+### 1. Portal: Auth: Successful registration: User is redirected to My Account
 ---
-**Spec**: `auth.spec.ts`
-**Test name**: `should redirect to My Account when a new user registers successfully`
-**Fixture dependencies**: `page`
-**Data requirements**: 
-- Unique email generated dynamically (e.g., `test-${Date.now()}@example.com`).
-- Static valid data for First/Last Name, Password.
-**Setup**: None (starts at Homepage).
+**Status**: Automated
+**Preconditions**:
+- User is on the Homepage.
+- Unique user registration data is available.
 **Actions**:
-1.  Navigate to Homepage `/en/`.
-2.  Click "Sign in" link.
-3.  Enter unique email in "Create an account" input.
-4.  Click "Create an account".
-5.  Fill "First Name", "Last Name", "Password", "Title".
-6.  Click "Register".
+1.  Navigate to the Sign In page.
+2.  Initiate account creation with a unique email address.
+3.  Fill in the registration form with valid personal details.
+4.  Submit the registration.
 **Assertions**:
-- URL contains `controller=my-account`.
-- Heading "My account" is visible.
-- Success alert "Your account has been created." is visible.
-**Risks**: Email uniqueness collision if not handled dynamically.
+- User is redirected to the "My Account" page.
+- Heading "My Account" is displayed.
+- User's first name is visible in the header.
 ---
 
-### 2. User Login
-
+### 2. Portal: Auth: Registered user login: Dashboard is displayed
 ---
-**Spec**: `auth.spec.ts`
-**Test name**: `should display dashboard when registered user logs in`
-**Fixture dependencies**: `page` (No "auth" fixture, as we test login itself).
-**Data requirements**: 
-- Valid user credentials.
-**Setup**: 
-1.  **UI Registration Flow**: Go to Sign In -> Create Account -> Register (same steps as Scenario 1).
-2.  **Logout**: Click "Sign out".
+**Status**: Automated
+**Preconditions**:
+- A valid registered user account exists.
+- User is on the Homepage and signed out.
 **Actions**:
-1.  Navigate to Homepage `/en/`.
-2.  Click "Sign in".
-3.  Enter valid email/password (from setup).
-4.  Click "Sign in" button.
+1.  Navigate to the Sign In page.
+2.  Enter valid email and password credentials.
+3.  Click the "Sign in" button.
 **Assertions**:
-- URL contains `controller=my-account`.
-- Header User Info contains correct First/Last name.
-- "Sign out" button is visible.
-- Dashboard links ("Order History", "Credit Slips") are visible.
-**Risks**: Setup is slow; relies on Registration flow working.
+- User is successfully logged in.
+- "Sign out" button is visible in the header.
+- Header displays the correct user's first name.
+- Dashboard links (e.g., "Order History", "Credit Slips") are visible.
 ---
 
-### 3. Room Search
-
+### 3. Portal: Room Search: Valid dates search: Available rooms are listed
 ---
-**Spec**: `room-search.spec.ts`
-**Test name**: `should list available rooms when searching with valid dates`
-**Fixture dependencies**: `page`
-**Data requirements**: None (relies on default hotel inventory).
-**Setup**: None.
+**Status**: Automated
+**Preconditions**:
+- Hotel inventory exists for the selected dates.
 **Actions**:
-1.  Navigate to Homepage.
-2.  Type "Hotel Prime" in Location input.
-3.  Select "The Hotel Prime" from typeahead info.
-4.  Set Check-in to `Today + 1`, Check-out to `Today + 3` (using relative dates).
-5.  Click "Search Now".
+1.  Navigate to the Homepage.
+2.  Enter "The Hotel Prime" in the Location input.
+3.  Select check-in and check-out dates (e.g., Today + 1 to Today + 6).
+4.  Click "Search Now".
 **Assertions**:
-- URL contains `controller=search`.
-- List of rooms `#center_column .room_cont` count is > 0.
-- At least one room card contains text "General Rooms" (or known type).
-**Risks**: No inventory available for selected dates (flaky). *Mitigation*: Reset inventory before run or mock search results.
+- Search results page is loaded.
+- Available rooms are displayed in the results list.
+- At least one room belongs to the "General Rooms" category.
 ---
 
-### 4. Add Room to Cart
-
+### 4. Portal: Room Search: Add to Cart: Show success modal
 ---
-**Spec**: `room-search.spec.ts`
-**Test name**: `should show success modal when adding a room to cart`
-**Fixture dependencies**: `searchResults` (Fixture: navigates to Search page with results).
-**Data requirements**: Rooms available.
-**Setup**: `searchResults` fixture logic (UI Search).
+**Status**: Manual
+**Preconditions**:
+- User is on the Search Results page with available rooms.
 **Actions**:
-1.  Click "Book Now" on first available room.
-2.  Wait for modal `#layer_cart` to be visible.
+1.  Select room occupancy and click "Done".
+2.  Click the "Book Now" button on an available room.
 **Assertions**:
-- Modal header contains text "Room successfully added to your cart".
-- "Proceed to checkout" button is visible and enabled.
-**Risks**: "Book Now" might be disabled if room is sold out.
+- A confirmation modal appears with the text "Room successfully added to your cart".
+- The "Proceed to checkout" button is visible and enabled in the modal.
 ---
 
-### 5. Occupancy Limits
-
+### 5. Portal: Room Page: Exceed max adult occupancy: Error is shown
 ---
-**Spec**: `room-search.spec.ts`
-**Test name**: `should show error when exceeding max adult occupancy`
-**Fixture dependencies**: `searchResults`
-**Data requirements**: Room with specific limit (e.g., 2 adults).
-**Setup**: `searchResults` fixture logic (UI Search).
+**Status**: Manual
+**Preconditions**:
+- User is on the Search Results page.
+- A room with a specific adult occupancy limit (e.g., 2 Adults) is available.
 **Actions**:
-1.  Find room with Max Adults = 2.
-2.  Click "+" on Adults counter 3 times (0 -> 1 -> 2 -> 3 attempt).
+1.  Open the occupancy selector for a room with a 2-adult limit.
+2.  Attempt to increase the number of adults beyond the limit (e.g., to 3).
 **Assertions**:
-- Error message "Maximum adult occupancy reached" (fancybox or tooltip) is visible.
-- Adult count input value equals "2".
-**Risks**: Selector for "+" button might vary; logic might be JS-driven (slow).
+- Error message "Maximum adult occupancy reached" is displayed.
+- Adult count remains at the maximum limit (e.g., 2).
+- After clicking "Done", the selected occupancy correctly reflects 2 adults and 1 room.
 ---
 
-### 6. Cart Summary & Checkout
-
+### 6. Portal: Checkout: Cart summary: Correct items and costs displayed
 ---
-**Spec**: `checkout.spec.ts`
-**Test name**: `should display correct items in cart summary`
-**Fixture dependencies**: `cartWithRoom` (User login -> UI Search -> Add Room -> Proceed from Modal).
-**Data requirements**: User with items in cart.
-**Setup**: `cartWithRoom` fixture ensures user is at summary step via UI.
+**Status**: Manual
+**Preconditions**:
+- User has performed a search and is on the Search Results page.
 **Actions**:
-1.  Review summary table `#order-detail-content`.
-2.  Click "Proceed" (Summary step).
+1.  Select occupancy and click "Done".
+2.  Click "Book Now" and wait for the success modal.
+3.  Note the room cost, taxes, fees, and total cost displayed.
+4.  Click "Proceed to checkout".
 **Assertions**:
-- Summary table contains room name.
-- After click, URL contains `controller=order&step=1` (Addresses).
-**Risks**: None.
+- The Cart Summary table displays the correct room name.
+- The summary table correctly reflects the previously noted costs (room, fees, tax, and total).
 ---
 
-### 7. Guest Information & Address
-
+### 7. Portal: Checkout: Valid address: Correct hotel details displayed
 ---
-**Spec**: `checkout.spec.ts`
-**Test name**: `should proceed to payment when address is valid`
-**Fixture dependencies**: `cartWithRoom`
-**Data requirements**: User with configured address.
-**Setup**: Navigate through Summary to Address step (Address is created during UI Registration in `cartWithRoom` -> `auth` fixture).
+**Status**: Manual
+**Preconditions**:
+- User is authorized and has a room selected in the cart.
 **Actions**:
-1.  Verify Address dropdown has a selection.
-2.  Click "Proceed" (Address step).
+1.  Select a room from the Homepage or Search page.
+2.  Note the hotel room name and address.
+3.  Click "Book Now" and then "Proceed to checkout".
 **Assertions**:
-- Navigate to Payment step (`controller=order` with `step=3` or similar params).
-- "Payment" header is visible.
-**Risks**: Address might be missing if user creation was partial (unlikely with UI flow).
+- The summary table displays the correct hotel room name and address.
+---
 ---
 
-### 8. Payment Terms Validation (Negative)
-
+### 8. Portal: Checkout: Terms of Service validation
 ---
-**Spec**: `checkout.spec.ts`
-**Test name**: `should prevent payment when terms are not accepted`
-**Fixture dependencies**: `paymentReadyUser` (User at payment step).
-**Data requirements**: None.
-**Setup**: `paymentReadyUser` fixture logic (Full UI checkout flow until Payment).
+**Status**: Manual
+**Preconditions**:
+- User has rooms in the cart and is on the "Rooms & Price Summary" page.
 **Actions**:
-1.  Identify "Terms of Service" checkbox `#cgv`.
-2.  Ensure checkbox is **unchecked**.
-3.  Click "Pay by bank wire" `a.bankwire`.
+1.  Click "Proceed" through the checkout steps until reaching the Terms of Service.
+2.  Attempt to proceed without accepting the Terms of Service.
+3.  Accept the Terms of Service by clicking the checkbox.
 **Assertions**:
-- URL does NOT change to bank wire payment page.
-- Error message "You must agree to the terms of service before continuing." (fancybox or alert) is visible.
-**Risks**: Alert might be native browser alert.
+- An error message "Please accept the Terms of Service" appears when attempted without acceptance.
+- The error message disappears once the checkbox is selected.
 ---
 
-### 9. Complete Order (Positive)
 
+### 9. Portal: Checkout: Bank Wire payment: Order is completed
 ---
-**Spec**: `checkout.spec.ts`
-**Test name**: `should complete order via Bank Wire`
-**Fixture dependencies**: `paymentReadyUser`
-**Data requirements**: None.
-**Setup**: `paymentReadyUser` fixture logic.
+**Status**: Manual
+**Preconditions**:
+- User has a room in the cart and is on the "Rooms & Price Summary" page.
 **Actions**:
-1.  Check "Terms of Service" checkbox `#cgv`.
-2.  Click "Pay by bank wire".
-3.  Verify navigation to Summary.
-4.  Click "I confirm my order".
+1.  Proceed through checkout, accept the Terms of Service, and select "Pay by bank wire".
+2.  Confirm the order.
 **Assertions**:
-- URL contains `controller=order-confirmation`.
-- Heading "Order confirmation" is visible.
-- Text "Your order on The Hotel Prime is complete." is visible.
-- Reference Code is visible (capture via Regex if needed).
-**Risks**: Bank wire module might be disabled in admin.
+- Success message "Your booking has been created successfully!" is displayed.
+- Room name and total cost are correct in the confirmation.
+- Booking status is set to "Awaiting payment".
 ---
 
-### 10. Verify Order History
 
+### 10. Portal: Bookings: Completed order visible in history
 ---
-**Spec**: `order-history.spec.ts`
-**Test name**: `should display completed order in history`
-**Fixture dependencies**: `completedOrder` (User with 1 past order).
-**Data requirements**: Order Reference from setup.
-**Setup**: `completedOrder` runs full UI checkout flow and captures Reference.
+**Status**: Manual
+**Preconditions**:
+- User has a room booking with the status "Awaiting payment".
 **Actions**:
-1.  Click User Name in header -> "Order History".
-2.  Locate first row in table `tr.first_item`.
+1.  Navigate to the "Booking" (or "Order History") section in the user profile.
+2.  Locate the latest booking entry.
 **Assertions**:
-- First row Order Reference matches the one from setup.
-- Date is today.
-- Total price matches.
-**Risks**: Timezone differences for "Date" assertion.
+- The booking is displayed in the history.
+- The order reference matches the reference provided at the time of booking.
+- The total price displayed matches the expected order total.
 ---
 
-### 11. Admin Login
-
+### 11. Admin: Auth: Successful login: Dashboard is displayed
 ---
-**Spec**: `admin-auth.spec.ts`
-**Test name**: `should display dashboard upon successful admin login`
-**Fixture dependencies**: `page`
-**Data requirements**: Valid Admin credentials (env vars).
-**Setup**: None.
+**Status**: Manual
+**Preconditions**:
+- Admin portal is accessible.
+- Valid administrator credentials are available.
 **Actions**:
-1.  Navigate to Admin URL.
-2.  Enter Email/Password.
+1.  Navigate to the Admin login page.
+2.  Enter valid administrator email and password.
 3.  Click "Log in".
 **Assertions**:
-- URL contains `controller=AdminDashboard`.
-- Sidebar menu is visible.
-- User profile icon is visible in header.
-**Risks**: Admin URL might be dynamic/tokenized.
+- Administrator is successfully logged in.
+- Dashboard page is loaded.
+- Sidebar menu and administrator name are visible in the header.
 ---
 
-### 12. Admin - Verify Order Details
-
+### 12. Admin: Orders: New order details: Correct details are displayed
 ---
-**Spec**: `admin-orders.spec.ts`
-**Test name**: `should display correct details for a new order`
-**Fixture dependencies**: `adminAuth`, `completedOrder` (Auxiliary user context).
-**Data requirements**: Order Reference from a fresh user order.
-**Setup**: 
-1.  **User Context**: Run `completedOrder` flow to place a new order via UI. Capture `orderReference`.
-2.  **Admin Context**: Use `adminAuth` to login as admin.
+**Status**: Manual
+**Preconditions**:
+- A new room booking has been placed via the Portal.
+- Administrator is logged into the Admin portal.
 **Actions**:
-1.  Navigate to Orders page.
-2.  Filter/Search for `orderReference` or pick first row.
-3.  Click View Details.
+1.  Navigate to the Orders page.
+2.  Search for the specific order reference.
+3.  Open the order details view.
 **Assertions**:
-- Customer Name matches user.
-- Total Price matches.
-- Initial Status is "Awaiting bank wire payment".
-**Risks**: Order processing delay (unlikely).
+- Customer name matches the portal user.
+- Hotel name and total number of rooms are correct.
+- Total price matches the portal order.
+- Initial payment status is displayed as "No Payment Received".
 ---
 
-### 13. Admin - Update Order Status
-
 ---
-**Spec**: `admin-orders.spec.ts`
-**Test name**: `should update order status to Payment Accepted`
-**Fixture dependencies**: `adminAuth`, `orderAwaitingPayment` (Order in initial state).
-**Data requirements**: Order Reference.
-**Setup**: `orderAwaitingPayment` creates order via UI, then Admin logs in and finds it.
+
+### 13. Admin: Orders: Update status to Payment Accepted
+---
+**Status**: Manual
+**Preconditions**:
+- An order with the status "Awaiting payment" exists.
+- Administrator is logged into the Admin portal.
 **Actions**:
-1.  Navigate to Order Details.
-2.  Select "Payment accepted" in status dropdown.
-3.  Click "Update status".
+1.  Navigate to the specific Order Details page.
+2.  Select "Complete payment received" from the status dropdown.
+3.  Update the status.
 **Assertions**:
-- Status badge updates to "Payment accepted".
-- Status history table adds a new row "Payment accepted".
-**Risks**: Status IDs might vary; selection by text is safer.
+- Order status is successfully updated to "Complete payment received".
+- A new entry appears in the Payment section with the payment method details.
 ---
 
-### 14. Admin - Send Message to User
-
+### 14. Admin: Orders: Send message to customer
 ---
-**Spec**: `admin-orders.spec.ts`
-**Test name**: `should append sent message to order history`
-**Fixture dependencies**: `adminAuth`, `orderAwaitingPayment`.
-**Data requirements**: Order Reference.
-**Setup**: Navigate to Order Details (Setup involves UI order creation).
+**Status**: Manual
+**Preconditions**:
+- An active order exists.
+- Administrator is logged into the Admin portal.
 **Actions**:
-1.  Scroll to Messages.
-2.  Type "Your booking is confirmed!".
-3.  Check "Display to customer".
-4.  Click "Send message".
+1.  Navigate to the Order Details page in the Admin portal.
+2.  Scroll to the Messages section and enter a confirmation message.
+3.  Enable "Display to customer" and send the message.
+4.  Switch to the Portal and navigate to the same booking's details.
 **Assertions**:
-- Message appears in list above.
-- "Visible to customer" column shows "Yes" (green check).
-**Risks**: None.
+- The message appears in the order thread within the Admin portal.
+- The message is correctly displayed to the user in the Portal's booking details.
 ---
 
-### 15. User - Verify Admin Message
-
 ---
-**Spec**: `order-history.spec.ts`
-**Test name**: `should display message sent by admin`
-**Fixture dependencies**: `orderWithAdminMessage` (User with order + Admin message sent).
-**Data requirements**: Order with message.
-**Setup**: 
-1.  **User Context**: Place order via UI.
-2.  **Admin Context**: Login, find order, send message via UI.
-3.  **User Context**: Return to user session.
+
+### 15. Admin: Catalog: Manage Room Types: Verify 'Luxury Rooms' details
+---
+**Status**: Manual
+**Preconditions**:
+- Administrator is logged into the Admin portal.
+- "Luxury Rooms" data is populated in the catalog.
 **Actions**:
-1.  User Login -> Order History -> Details.
-2.  Scroll to Messages.
+1.  Navigate to Catalog -> Manage Room Types.
+2.  Search for the room type with the name "Luxury Rooms".
 **Assertions**:
-- Message text "Your booking is confirmed!" is visible.
-- Sender is "Shop Name" (or Admin).
-**Risks**: None.
+- The results table displays the correct details:
+    - Name: "Luxury Rooms"
+    - Hotel: "The Hotel Prime"
+    - Total Rooms: Match expected count (e.g., 5)
+    - Base Price: Match expected value (e.g., 2500,00 zł)
 ---
 
-### 16. Admin - Verify Customer
-
 ---
-**Spec**: `admin-customers.spec.ts`
-**Test name**: `should find customer by email`
-**Fixture dependencies**: `adminAuth`, `registeredUser` (or static test user).
-**Data requirements**: Known user email.
-**Setup**: Ensure user exists by running **UI Registration Flow**.
+
+
+### 16. Admin: Customers: Search by email: Matching customer is found
+---
+**Status**: Manual
+**Preconditions**:
+- A registered customer exists in the system.
+- Administrator is logged into the Admin portal.
 **Actions**:
-1.  Navigate to Customers.
-2.  Input Email in Filter.
-3.  Click Search.
+1.  Navigate to the Customers section.
+2.  Filter the customer list by the specific email address and search.
+3.  Open the customer's detail view.
 **Assertions**:
-- Table shows exactly 1 row.
-- Email column matches input.
-**Risks**: None.
+- The table displays exactly one matching record.
+- The customer's details (Name, Surname, Email) are correctly displayed in the detail view.
 ---
 
-### 17. Admin - Filter Orders by Reference
 
+### 17. Admin: Orders: Search by reference code: Matching order is found
 ---
-**Spec**: `admin-orders.spec.ts`
-**Test name**: `should find order by reference code`
-**Fixture dependencies**: `adminAuth`, `completedOrder`.
-**Data requirements**: Order Reference.
-**Setup**: Ensure order exists by running **UI Checkout Flow**.
+**Status**: Manual
+**Preconditions**:
+- At least one booking exists in the system.
+- Administrator is logged into the Admin portal.
 **Actions**:
-1.  Navigate to Orders.
-2.  Input Reference in Filter.
-3.  Click Search.
+1.  Navigate to the Orders section.
+2.  Filter the orders by a specific reference code and search.
+3.  Open the order details.
 **Assertions**:
-- Table shows exactly 1 row.
-- Reference column matches input.
-**Risks**: None.
+- The table displays exactly one matching record.
+- The order reference displayed in the details view matches the search input.
 ---
 
-### 18. Admin - Access Stats Dashboard
-
+### 18. Admin: Dashboard: Key statistics widgets: Widgets are displayed
 ---
-**Spec**: `admin-dashboard.spec.ts`
-**Test name**: `should display key statistics widgets`
-**Fixture dependencies**: `adminAuth`
-**Data requirements**: None.
-**Setup**: Navigate to Dashboard.
+**Status**: Manual
+**Preconditions**:
+- Administrator is logged into the Admin portal.
 **Actions**:
-1.  Wait for dashboard load.
+1.  Wait for the Dashboard to fully load.
 **Assertions**:
-- "Calendar" widget is visible.
-- "Online Visitors" widget is visible.
-- No 500 errors.
-**Risks**: Dashboard might be slow to load stats.
+- All key statistics widgets are visible (e.g., Arrivals, Departures, New Bookings, Occupancy, Revenue).
+- Occupancy and "Operations Today" sections are properly displayed.
 ---

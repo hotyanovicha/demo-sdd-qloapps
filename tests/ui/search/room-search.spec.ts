@@ -2,7 +2,7 @@ import { test } from '@fixtures/index';
 import { getSearchDates } from '@utils/dates';
 
 test.describe('Room Search', () => {
-  test('should list available rooms when searching with valid dates', async ({ pages }) => {
+  test('Portal: Room Search: Valid dates search: Available rooms are listed', async ({ pages }) => {
     const { checkInDay, checkOutDay } = getSearchDates();
 
     await pages.homePage.open();
