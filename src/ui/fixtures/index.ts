@@ -2,7 +2,6 @@ import { test as base } from '@playwright/test';
 import { PageManager } from '@pages/page-manager';
 import { createRegistrationData } from '@src/ui/test-data/factories/user.factory';
 import { RegistrationData } from '@types-ui/index';
-import { URLS } from '@constants/urls';
 
 type CustomFixtures = {
   pages: PageManager;

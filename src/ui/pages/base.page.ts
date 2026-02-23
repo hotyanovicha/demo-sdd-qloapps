@@ -3,10 +3,13 @@ import { step } from '@utils/decorators';
 
 export abstract class BasePage {
   protected abstract readonly uniqueElement: Locator;
-  private get userDropdown() { return this.page.locator('#user_info_acc').describe('User Dropdown Button'); }
-  private get logoutLink() { return this.page.locator('.header_user_info a[title="Log me out"]').describe('Logout Link'); }
+  private readonly userDropdown: Locator;
+  private readonly logoutLink: Locator;
 
-  constructor(protected readonly page: Page) { }
+  constructor(protected readonly page: Page) {
+    this.userDropdown = page.locator('#user_info_acc').describe('User Dropdown Button');
+    this.logoutLink = page.locator('.header_user_info a[title="Log me out"]').describe('Logout Link');
+  }
 
   @step('Wait for page load')
   async waitForLoad(): Promise<this> {

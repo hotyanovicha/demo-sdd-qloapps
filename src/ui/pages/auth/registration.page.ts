@@ -1,10 +1,10 @@
 import { Page } from '@playwright/test';
-import { BasePage } from '../base.page';
+import { BasePage } from '@pages/base.page';
 import { RegistrationData } from '@types-ui/index';
 import { step } from '@utils/decorators';
 
 export class RegistrationPage extends BasePage {
-  protected readonly uniqueElement = this.page.getByRole('heading', { name: /your personal information/i });
+  protected readonly uniqueElement = this.page.getByRole('heading', { name: /your personal information/i }).describe('Personal Information Heading');
   private readonly titleMrRadio = this.page.locator('input#id_gender1').describe('Mr Title Radio');
   private readonly titleMrsRadio = this.page.locator('input#id_gender2').describe('Mrs Title Radio');
   private readonly firstNameInput = this.page.locator('input#customer_firstname').describe('First Name Input');

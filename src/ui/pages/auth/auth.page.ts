@@ -1,15 +1,15 @@
-import { Locator, Page } from '@playwright/test';
-import { BasePage } from '../base.page';
+import { Page } from '@playwright/test';
+import { BasePage } from '@pages/base.page';
 import { step } from '@utils/decorators';
 import { URLS } from '@constants/urls';
 
 export class AuthPage extends BasePage {
-  protected readonly uniqueElement = this.page.getByRole('heading', { name: /authentication/i });
-  private readonly emailInput = this.page.locator('input#email');
-  private readonly passwordInput = this.page.locator('input#passwd');
-  private readonly submitButton = this.page.getByRole('button', { name: /sign in/i });
-  private readonly createAccountEmailInput = this.page.locator('input#email_create');
-  private readonly createAccountButton = this.page.locator('button#SubmitCreate');
+  protected readonly uniqueElement = this.page.getByRole('heading', { name: /authentication/i }).describe('Authentication Heading');
+  private readonly emailInput = this.page.locator('input#email').describe('Login Email Input');
+  private readonly passwordInput = this.page.locator('input#passwd').describe('Login Password Input');
+  private readonly submitButton = this.page.getByRole('button', { name: /sign in/i }).describe('Sign In Button');
+  private readonly createAccountEmailInput = this.page.locator('input#email_create').describe('Create Account Email Input');
+  private readonly createAccountButton = this.page.locator('button#SubmitCreate').describe('Create Account Button');
 
   constructor(page: Page) {
     super(page);

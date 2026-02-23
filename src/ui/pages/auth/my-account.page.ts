@@ -1,9 +1,17 @@
 import { expect, Page } from '@playwright/test';
-import { BasePage } from '../base.page';
+import { BasePage } from '@pages/base.page';
 import { step } from '@utils/decorators';
+
+const BOOKINGS_LINK_TITLE = 'Bookings';
+const CREDIT_SLIPS_LINK_TITLE = 'Credit slips';
 
 export class MyAccountPage extends BasePage {
   protected readonly uniqueElement = this.page.getByRole('heading', { name: /my account/i }).describe('My Account Heading');
+  private readonly userNameButton = (name: string) =>
+    this.page.getByRole('button', { name }).first().describe(`User name button: ${name}`);
+  private readonly dashboardLinks = this.page.locator('.myaccount-link-list').describe('Dashboard Links List');
+  private readonly bookingsLink = this.dashboardLinks.locator(`a[title="${BOOKINGS_LINK_TITLE}"]`).describe('Bookings Link');
+  private readonly creditSlipsLink = this.dashboardLinks.locator(`a[title="${CREDIT_SLIPS_LINK_TITLE}"]`).describe('Credit Slips Link');
 
   constructor(page: Page) {
     super(page);
@@ -16,13 +24,12 @@ export class MyAccountPage extends BasePage {
 
   @step('Assert user first name button is visible in the header')
   async expectUserName(firstName: string): Promise<void> {
-    await expect(this.page.getByRole('button', { name: firstName }).first()).toBeVisible();
+    await expect(this.userNameButton(firstName)).toBeVisible();
   }
 
   @step('Assert Bookings and Credit slips links are visible in the dashboard')
   async expectDashboardLinksVisible(): Promise<void> {
-    const dashboardLinks = this.page.locator('.myaccount-link-list').describe('Dashboard Links List');
-    await expect(dashboardLinks.locator('a[title="Bookings"]')).toBeVisible();
-    await expect(dashboardLinks.locator('a[title="Credit slips"]')).toBeVisible();
+    await expect(this.bookingsLink).toBeVisible();
+    await expect(this.creditSlipsLink).toBeVisible();
   }
 }
