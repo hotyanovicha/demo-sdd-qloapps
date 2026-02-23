@@ -55,7 +55,7 @@
                             {block name='shopping_cart_room_detail'}
                                 <div class="product-xs-info">
                                     {block name='shopping_cart_room_type_name'}
-                                        <p class="product-name">
+                                        <p class="product-name" data-testid="cart-room-name">
                                             <a href="{$link->getProductLink($data_v['id_product'])}">
                                                 {$data_v['name']}
                                             </a>
@@ -394,7 +394,7 @@
         {block name='shopping_cart_proceed_action'}
             <div class="row">
                 <div class="col-sm-12 proceed_btn_block">
-                    <a class="btn btn-default button button-medium pull-right" href="{$link->getPageLink('order-opc', null, null, ['proceed_to_customer_dtl' => 1])}" title="Proceed to checkout" rel="nofollow">
+                    <a class="btn btn-default button button-medium pull-right" href="{$link->getPageLink('order-opc', null, null, ['proceed_to_customer_dtl' => 1])}" title="Proceed to checkout" rel="nofollow" data-testid="proceed-to-checkout">
                         <span>
                             {l s='Proceed'}
                         </span>

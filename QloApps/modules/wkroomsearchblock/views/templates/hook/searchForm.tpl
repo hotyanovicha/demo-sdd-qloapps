@@ -50,7 +50,7 @@
                         <input type="hidden" id="min_booking_offset" name="min_booking_offset" value="{if isset($min_booking_offset)}{$min_booking_offset|escape:'htmlall':'UTF-8'}{/if}">
 
                         <div class="hotel-selector-wrap {if isset($language_is_rtl) && $language_is_rtl}rtl{/if}">
-                            <select name="id_hotel" class="chosen header-rmsearch-input" data-placeholder="{l s='Select Hotel' mod='wkroomsearchblock'}" id="id_hotel_button">
+                            <select name="id_hotel" class="chosen header-rmsearch-input" data-placeholder="{l s='Select Hotel' mod='wkroomsearchblock'}" id="id_hotel_button" data-testid="hotel-selector">
                                 <option value=""></option>
                                 {foreach $hotels_info as $name_val}
                                     <option class="search_result_li" value="{$name_val['id']|escape:'htmlall':'UTF-8'}" data-id-hotel="{$name_val['id']|escape:'htmlall':'UTF-8'}" data-hotel-cat-id="{$name_val['id_category']|escape:'htmlall':'UTF-8'}" data-max_order_date="{$name_val['max_order_date']}" data-min_booking_offset="{$name_val['min_booking_offset']|escape:'htmlall':'UTF-8'}" {if isset($search_data) && $name_val['id'] == $search_data['htl_dtl']['id']}selected{/if}>{$name_val['hotel_name']|escape:'htmlall':'UTF-8'}</option>
@@ -239,7 +239,7 @@
             {/block}
             {block name='search_form_submit'}
                 <div class="form-group grid-item search_room_submit_block area-4" style="grid-column: span 4;">
-                    <button type="submit" class="btn btn btn-primary" name="search_room_submit" id="search_room_submit">
+                    <button type="submit" class="btn btn btn-primary" name="search_room_submit" id="search_room_submit" data-testid="search-room-submit">
                         <span>{l s='Search Rooms' mod='wkroomsearchblock'}</span>
                     </button>
                 </div>

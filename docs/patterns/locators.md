@@ -108,11 +108,18 @@ playwright-cli eval "document.querySelector('#pt-login-2').outerHTML"
 |:--------:|------|---------|-------------|
 | 1 | **Role + Name** | `getByRole('button', { name: 'Log in' })` | Accessible elements with stable text |
 | 2 | **ID Selectors** | `#wpName1` | Unique, non-auto-generated IDs |
-| 3 | **Data Attributes** | `[data-testid="login-btn"]` | Test-specific attributes |
+| 3 | **Data Attributes** | `[data-testid="login-btn"]` | Test-specific attributes added via `/add-testid` skill — **check these first before falling back to classes** |
 | 4 | **ARIA Labels** | `[aria-label="Search"]` | Elements with ARIA attributes |
 | 5 | **Unique Attributes** | `[name="wpPassword"]` | Unique HTML attributes |
 | 6 | **Partial Classes** | `//div[contains(@class, 'login')]` | Stable class name portions |
 | 7 | **Combined** | `button#wpLoginAttempt` | Multiple attributes for uniqueness |
+
+**Checking for data-testid before creating a class-based locator:**
+```bash
+playwright-cli eval "document.querySelectorAll('[data-testid]').length"
+playwright-cli eval "Array.from(document.querySelectorAll('[data-testid]')).map(e => e.getAttribute('data-testid'))"
+```
+If the element already has a `data-testid`, use it. If not and one would improve stability, consider running `/add-testid` first.
 
 **Selection Criteria:**
 - ✅ Highest priority from above that works
@@ -291,9 +298,11 @@ Before adding locator to Page Object:
 | Skip uniqueness validation | Always verify count = 1 via `playwright-cli eval` |
 | Use dynamic/auto-generated IDs | Use stable IDs or roles (verify first) |
 | Overly broad selectors (`.btn`) | Specific selectors (`#login-btn`) |
-| Skip `.describe()` | Always add descriptions |
+| Skip `.describe()` | Always add descriptions (including on `uniqueElement`) |
 | Create without checking existing | Check page-object-map.md first |
 | Guess based on common patterns | Navigate to page and verify structure |
+| Define locator as a JS getter method (`get myBtn()`) | Use `private readonly myBtn = ...` class field |
+| Create locator inline inside a method body | Declare all locators as class-level properties |
 
 ---
 

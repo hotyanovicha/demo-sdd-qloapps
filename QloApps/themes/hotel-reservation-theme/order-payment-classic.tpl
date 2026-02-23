@@ -327,7 +327,7 @@
             <div id="opc_payment_methods-content">
         {/if}
         {block name='displayPayment'}
-            <div id="HOOK_PAYMENT">
+            <div id="HOOK_PAYMENT" data-testid="payment-methods">
                 {$HOOK_PAYMENT}
             </div>
         {/block}

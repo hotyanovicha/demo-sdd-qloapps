@@ -40,11 +40,11 @@
             {block name='my_account_tabs'}
                 <ul class="myaccount-link-list">
                     <li><a href="{$link->getPageLink('address', true)|escape:'html':'UTF-8'}" title="{l s='Address'}"><i class="icon-building"></i><span>{l s='Address'}</span></a></li>
-                    <li><a href="{$link->getPageLink('history', true)|escape:'html':'UTF-8'}" title="{l s='Bookings'}"><i class="icon-list-ol"></i><span>{l s='Bookings'}</span></a></li>
+                    <li><a href="{$link->getPageLink('history', true)|escape:'html':'UTF-8'}" title="{l s='Bookings'}" data-testid="bookings-link"><i class="icon-list-ol"></i><span>{l s='Bookings'}</span></a></li>
                     {if $refundAllowed}
                         <li><a href="{$link->getPageLink('order-follow', true)|escape:'html':'UTF-8'}" title="{l s='Refund requests'}"><i class="icon-refresh"></i><span>{l s='Refund requests'}</span></a></li>
                     {/if}
-                    <li><a href="{$link->getPageLink('order-slip', true)|escape:'html':'UTF-8'}" title="{l s='Credit slips'}"><i class="icon-file-o"></i><span>{l s='Credit slips'}</span></a></li>
+                    <li><a href="{$link->getPageLink('order-slip', true)|escape:'html':'UTF-8'}" title="{l s='Credit slips'}" data-testid="credit-slips-link"><i class="icon-file-o"></i><span>{l s='Credit slips'}</span></a></li>
                     <li><a href="{$link->getPageLink('identity', true)|escape:'html':'UTF-8'}" title="{l s='Personal information'}"><i class="icon-user"></i><span>{l s='Personal information'}</span></a></li>
                 </ul>
             {/block}

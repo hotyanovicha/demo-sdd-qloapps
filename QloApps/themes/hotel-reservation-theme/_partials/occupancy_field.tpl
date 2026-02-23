@@ -22,7 +22,7 @@
 
 <div class="form-group dropdown">
     {block name='occupancy_field_button'}
-        <button class="form-control booking_guest_occupancy input-occupancy{if isset($error) && $error == 1} error_border{/if}" type="button">
+        <button class="form-control booking_guest_occupancy input-occupancy{if isset($error) && $error == 1} error_border{/if}" type="button" data-testid="occupancy-button">
             <span class="">
                 {if isset($occupancies) && $occupancies}
                     {if (isset($occupancy_adults) && $occupancy_adults)}{$occupancy_adults} {if $occupancy_adults > 1}{l s='Adults'}{else}{l s='Adult'}{/if}, {if isset($occupancy_children) && $occupancy_children}{$occupancy_children} {if $occupancy_children > 1} {l s='Children'}{else}{l s='Child'}{/if}, {/if}{$occupancies|count} {if $occupancies|count > 1}{l s='Rooms'}{else}{l s='Room'}{/if}{else}{l s='1 Adult, 1 Room'}{/if}
@@ -53,11 +53,11 @@
                                         <label class="col-sm-12">{l s='Adults'}</label>
                                         <div class="col-sm-12">
                                             <input type="hidden" class="num_occupancy num_adults room_occupancies" name="occupancy[{$key|escape:'htmlall':'UTF-8'}][adults]" value="{$occupancy['adults']|escape:'htmlall':'UTF-8'}">
-                                            <div class="occupancy_count pull-left">
+                                            <div class="occupancy_count pull-left" data-testid="occupancy-adult-count">
                                                 <span>{$occupancy['adults']|escape:'htmlall':'UTF-8'}</span>
                                             </div>
                                             <div class="qty_direction pull-left">
-                                                <a href="#" data-field-qty="qty" class="btn btn-default occupancy_quantity_up">
+                                                <a href="#" data-field-qty="qty" class="btn btn-default occupancy_quantity_up" data-testid="occupancy-quantity-up">
                                                     <span><i class="icon-plus"></i></span>
                                                 </a>
                                                 <a href="#" data-field-qty="qty" class="btn btn-default occupancy_quantity_down">
@@ -124,11 +124,11 @@
                                     <label class="col-sm-12">{l s='Adults'}</label>
                                     <div class="col-sm-12">
                                         <input type="hidden" class="num_occupancy num_adults" name="occupancy[0][adults]" value="{$room_type_info['adults']}">
-                                        <div class="occupancy_count pull-left">
+                                        <div class="occupancy_count pull-left" data-testid="occupancy-adult-count">
                                             <span>{$room_type_info['adults']}</span>
                                         </div>
                                         <div class="qty_direction pull-left">
-                                            <a href="#" data-field-qty="qty" class="btn btn-default occupancy_quantity_up">
+                                            <a href="#" data-field-qty="qty" class="btn btn-default occupancy_quantity_up" data-testid="occupancy-quantity-up">
                                                 <span>
                                                     <i class="icon-plus"></i>
                                                 </span>
@@ -190,7 +190,7 @@
                         </a>
                     </span>
                     <span>
-                        <button type="submit" class="submit_occupancy_btn btn btn-primary">{l s='Done'}</button>
+                        <button type="submit" class="submit_occupancy_btn btn btn-primary" data-testid="occupancy-submit">{l s='Done'}</button>
                     </span>
                 </div>
             {/block}

@@ -198,6 +198,26 @@ import { URLS } from '../../test-data/constants/urls';
 | Files (Utils) | kebab-case | `config.ts`, `test-data-generator.ts` |
 | Files (Specs) | kebab-case | `wikipedia-login.spec.ts` |
 
+### Test Naming
+
+**Rule:** `test('...')` names MUST be a verbatim copy of the scenario heading from `docs-old/refined-specs.md`.
+
+- The heading format is: `### N. Portal: Feature: Condition: Outcome`
+- Copy the full text after `### N. ` as the test name — no paraphrasing, no shortening.
+- This ensures traceability from test runner output back to the spec document.
+
+```typescript
+// docs-old/refined-specs.md heading:
+// ### 4. Portal: Room Search: Add to Cart: Show success modal
+
+// ✅ GOOD — verbatim copy
+test('Portal: Room Search: Add to Cart: Show success modal', ...);
+
+// ❌ BAD — paraphrased
+test('should show modal when adding room to cart', ...);
+test('Add to Cart modal', ...);
+```
+
 ### File Naming
 
 | Directory | Convention | Example |
@@ -635,6 +655,26 @@ URL constants live in `src/ui/test-data/constants/urls.ts`. Only Page Objects im
 
 ---
 
+## Admin Test Serialization
+
+**Rule:** Admin tests MUST run sequentially. The application has a single shared admin account; parallel execution causes state conflicts.
+
+- All admin scenarios belong in one spec file (e.g., `tests/ui/admin/admin.spec.ts`).
+- The `describe` block must include `test.describe.configure({ mode: 'serial' })`.
+
+```typescript
+// tests/ui/admin/admin.spec.ts
+test.describe('Admin', () => {
+  test.describe.configure({ mode: 'serial' });
+
+  test('Admin: Auth: Successful login: Dashboard is displayed', async ({ pages }) => {
+    // ...
+  });
+});
+```
+
+---
+
 ## Assertions: URL Checks
 
 **Rule:** Page identity must be confirmed via `uniqueElement` and `waitForLoad()` — not via URL assertion methods in Page Objects.
@@ -728,6 +768,10 @@ await assertSchema(response, AccessTokenSchema, 'Access Token Response');
 ❌ **Unused imports** → Remove all unused imports immediately
 ❌ **Relative imports when alias exists** → Use path aliases (`@utils/config` not `../../utils/config`)
 ❌ **Missing barrel exports** → All new modules must be exported from their `index.ts`
+❌ **Getter-based locators in POM** → Use `private readonly` class fields, never `get myLocator() { return this.page.locator(...) }`
+❌ **Inline locator creation inside POM methods** → Declare all locators as class properties; method bodies only reference them
+❌ **`test.setTimeout()` in spec files** → Configure timeouts in `playwright.config.ts`; investigate the root cause of slowness
+❌ **Hardcoded expected-text strings in assertions** → Store in named constants at top of file or in `src/ui/test-data/constants/`; no raw string literals inside `expect()` calls
 
 ---
 

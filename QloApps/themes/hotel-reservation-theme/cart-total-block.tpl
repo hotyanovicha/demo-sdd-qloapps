@@ -117,7 +117,7 @@
         </span>
     </p>
         <hr>
-        <p {if !isset($is_advance_payment) || !$is_advance_payment}class="cart_final_total_block"{/if}>
+        <p {if !isset($is_advance_payment) || !$is_advance_payment}class="cart_final_total_block"{/if} data-testid="cart-final-total">
             <span class="strong">{l s='Total'}</span>
             {block name='displayCartTotalPriceLabelTotal'}
                 {hook h="displayCartTotalPriceLabel" type='total'}
@@ -136,7 +136,7 @@
                 <span>{l s='Due Amount'}</span>
                 <span class="cart_total_values">{displayPrice price=$dueAmount}</span>
             </p>
-            <p class="cart_final_total_block">
+            <p class="cart_final_total_block" data-testid="cart-partial-total">
                 <span class="strong">{l s='Partially Payable Total'}</span>
                 {block name='displayCartTotalPriceLabelPartial'}
                     {hook h="displayCartTotalPriceLabel" type='partial'}
