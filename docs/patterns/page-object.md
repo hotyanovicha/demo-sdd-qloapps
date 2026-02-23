@@ -18,7 +18,7 @@
 3.  **Inherit from `BasePage`**
 4.  **ONE locator per element** - Most reliable verified locator only (verified via MCP)
 5.  **Locator reuse** - Prefer existing locators and extend existing Page Objects when needed
-6.  **Direct Playwright API** - Use `Locator` for elements, BasePage methods for checks, `.describe()` for debugging
+6.  **Direct Playwright API** - Use `Locator` for elements, BasePage methods for checks, `.describe()` for debugging. **All locators including `uniqueElement` must have `.describe()`.**
 7.  **Atomic Actions** - Expose simple actions (click, type, get text), NOT complex business logic
 8.  **Search existing first** - No duplicates allowed
 9.  **ONE Page Object per unique page/URL**
@@ -37,6 +37,47 @@
 18. **🔴 Locator extraction process** - Follow [locators.md](locators.md) methodology for creating new locators. **MCP verification is MANDATORY** - Always verify uniqueness before implementation.
 19. **🔴 Dynamic locators as arrow functions** - For parameterized locators (by index, text, etc.), use arrow function class properties instead of inline creation in methods. **Use dynamic locators directly** - Call the arrow function directly in methods (e.g., `this.paragraphs(index)`), do not create intermediate variables or helper methods.
 20. **🔴 No unused methods** - Never create methods that are not used in tests. Remove unused methods immediately. Check usage before creating new methods.
+21. **🔴 No getter-based locators** - NEVER define locators as JavaScript `get` accessor methods. A getter recreates the `Locator` instance on every access. Always use `private readonly` class fields (property initializer or constructor assignment).
+22. **🔴 No inline locator creation inside methods** - All locators representing DOM elements MUST be declared as `private readonly` class properties (or arrow-function class properties for parametric locators). Methods must only reference or chain from those existing class properties — never call `this.page.locator()` inside a method body.
+
+---
+
+## Locator Declaration Rules
+
+### No Getter-Based Locators (Rule 21)
+
+```typescript
+// ❌ BAD: getter method — creates a new Locator on every call
+export class MyPage extends BasePage {
+  private get submitButton() {
+    return this.page.locator('#submit').describe('Submit button');
+  }
+}
+
+// ✅ GOOD: private readonly field — single Locator instance
+export class MyPage extends BasePage {
+  private readonly submitButton = this.page.locator('#submit').describe('Submit button');
+}
+```
+
+### No Inline Locators in Methods (Rule 22)
+
+```typescript
+// ❌ BAD: locator created inside a method body
+async clickHotelOption(name: string): Promise<void> {
+  const container = this.page.locator('#id_hotel_button_chosen'); // inline!
+  await container.getByText(name).click();
+}
+
+// ✅ GOOD: static base locator as class field; dynamic chain is an arrow function
+private readonly hotelDropdownContainer = this.page.locator('#id_hotel_button_chosen').describe('Hotel Dropdown Container');
+private readonly hotelOption = (name: string) =>
+  this.hotelDropdownContainer.getByText(name).describe(`Hotel option: ${name}`);
+
+async clickHotelOption(name: string): Promise<void> {
+  await this.hotelOption(name).click();
+}
+```
 
 ---
 
@@ -292,6 +333,9 @@ async verifyParagraphContainsText(expectedText: string, index: number = 0): Prom
 -   ✅ Playwright `Locator` used for all elements
 -   ✅ All locators have `.describe()` for debugging
 -   ✅ Dynamic locators use arrow function class properties
+-   ✅ No getter-based locators (`get propertyName()`) — all are `private readonly` fields
+-   ✅ No locators created inline inside method bodies
+-   ✅ All locators including `uniqueElement` have `.describe()`
 -   ✅ BasePage inherited correctly with uniqueElement implemented
 -   ✅ Atomic public API
 -   ✅ No duplicate functionality

@@ -13,6 +13,18 @@ This codebase serves as an environment optimized for AI agents following the Har
 
 The AI agent will follow this 4-step workflow to develop robust automated tests from human intent (manual test cases).
 
+### 0. Pre-Analysis Gate (MANDATORY for batched scenarios)
+
+When given **more than one scenario** to automate in a single request, the agent MUST ask the user the following questions BEFORE reading any code or docs:
+
+1. **Base URL** — "What is the `BASE_URL` for the running application?" Do NOT assume `localhost:8080` or any other address.
+2. **Grouping** — "Should these scenarios be grouped into a single spec file per feature area (e.g., `portal.spec.ts`, `admin.spec.ts`), or one spec file per scenario?"
+3. **Processing order** — "Should I develop them sequentially (one at a time, each passing before starting the next) or plan the full set first?"
+
+Do not proceed to Step 1 until all three questions are answered.
+
+> For a **single scenario**, skip this step and proceed directly to Step 1.
+
 ### 1. Analysis
 
 **Goal:** Understand the existing codebase and identify opportunities for reuse.
@@ -42,6 +54,20 @@ If new locators, state validations, or interactions are needed:
 3. **Spec Orchestration:** The agent creates or updates the spec file (`.spec.ts`) to orchestrate the test workflow using the Page Object methods.
 4. **Specific Assertions:** The agent writes test-specific assertions directly within the spec files.
 5. **Fixtures & Authentication:** Use existing Playwright fixtures for authorization and page setup. **Do not create new fixtures** without explicit approval from an engineer.
+
+   **When a test needs a freshly registered user** (checkout, bookings, profile tests), use the `authPages` fixture from `@fixtures/index`. It registers a new user before each test and provides:
+   - `authPage` — a `PageManager` already on the My Account page post-registration
+   - `user` — `{ email, password, firstName, ... }` registration data
+
+   ```typescript
+   test('...', async ({ authPages, pages }) => {
+     const { authPage, user } = authPages;
+     // authPage.myAccountPage is already loaded
+     // use pages.xxx for subsequent navigation
+   });
+   ```
+
+   Do NOT register a user manually in the test body. Do NOT create a new fixture without engineer approval.
 6. **Self-Documenting Code:** The agent relies on clear method names and does NOT add explanatory architecture comments. It may use `@step` decorators on Page Object methods to organize large flows.
 7. **Maps:** The agent updates `docs/maps/page-object-map.md` to reflect any new abstractions created.
 

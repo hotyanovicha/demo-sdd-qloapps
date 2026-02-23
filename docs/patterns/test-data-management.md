@@ -37,6 +37,47 @@ utils/
 
 ---
 
+## QloApps-Specific Static Test Data
+
+**Rule:** QloApps UI values that appear as test inputs or assertion strings (hotel names, room type names, error messages, UI labels) must be stored as named constants — never passed as raw string literals in test calls or `expect()` assertions.
+
+### Where to store
+
+| Value type | Location |
+|---|---|
+| Hotel names, room categories, UI labels used across multiple tests | `src/ui/test-data/constants/` — TypeScript `const` object, `as const` |
+| Page-specific expected text used only inside one PO | Top of the Page Object file, `UPPER_SNAKE_CASE` |
+| Values used only in one test | Top of that test's `describe` block, `UPPER_SNAKE_CASE` |
+
+### Examples
+
+```typescript
+// src/ui/test-data/constants/hotels.ts
+export const HOTELS = {
+  THE_HOTEL_PRIME: 'The Hotel Prime',
+} as const;
+
+// src/ui/test-data/constants/room-types.ts
+export const ROOM_TYPES = {
+  GENERAL: 'General Rooms',
+  DELUX:   'Delux Rooms',
+  LUXURY:  'Luxury Rooms',
+} as const;
+
+// ✅ GOOD — named constants in spec
+import { HOTELS } from '@constants/hotels';
+import { ROOM_TYPES } from '@constants/room-types';
+
+await pages.homePage.fillSearchForm(HOTELS.THE_HOTEL_PRIME, checkInDay, checkOutDay);
+await pages.searchResultsPage.expectRoomCategoryPresent(ROOM_TYPES.GENERAL);
+
+// ❌ BAD — magic strings directly in test calls
+await pages.homePage.fillSearchForm('The Hotel Prime', checkInDay, checkOutDay);
+await pages.searchResultsPage.expectRoomCategoryPresent('Rooms');
+```
+
+---
+
 ## Date Utilities (`utils/dates.ts`)
 
 ### `getSearchDates(startOffset?, duration?)`
