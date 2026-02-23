@@ -42,7 +42,10 @@ Do not proceed to Step 1 until all three questions are answered.
 If new locators, state validations, or interactions are needed:
 1. The agent uses the `playwright-cli` skill to open the browser.
 2. The agent manually performs the test case workflow in the live browser via the CLI.
-3. The agent extracts exact, verified locators that are stable and semantic (preferring `getByRole`, `getByText`, etc.).
+3. The agent extracts exact, verified locators following this strict priority:
+   - **1st:** `getByTestId()` (if `data-testid` is available)
+   - **2nd:** Unique `id` or other highly specific attributes
+   - **3rd:** Semantic locators (`getByRole`, `getByLabel`, `getByText`, etc.)
 4. The agent creates snapshots of the DOM as necessary to ensure accuracy.
 
 ### 3. Development

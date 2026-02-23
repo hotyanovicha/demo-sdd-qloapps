@@ -31,6 +31,7 @@ export default defineConfig({
     trace: 'on',
     screenshot: 'only-on-failure',
     video: 'on',
+    testIdAttribute: 'data-testid',
   },
 
   /* Configure projects for major browsers */

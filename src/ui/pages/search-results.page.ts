@@ -8,12 +8,12 @@ export class SearchResultsPage extends BasePage {
   protected readonly uniqueElement = this.page.locator('#category_data_cont').describe('Room Results Container');
   private readonly roomCards = this.page.locator('#center_column .room_cont').describe('Room Cards');
   private readonly roomHeadings = this.page.locator('.rm_heading').describe('Room Name Headings');
-  private readonly firstRoomCard = this.page.locator('[data-testid="room-card"]').first().describe('First Available Room Card');
-  private readonly occupancyButton = this.firstRoomCard.locator('[data-testid="occupancy-button"]').describe('Occupancy Selector Button');
-  private readonly occupancySubmitButton = this.firstRoomCard.locator('[data-testid="occupancy-submit"]').describe('Occupancy Done Button');
-  private readonly bookNowButton = this.firstRoomCard.locator('[data-testid="book-now"]').describe('Book Now Button');
-  private readonly cartModalHeading = this.page.locator('[data-testid="layer-cart-room-added"]').describe('Cart Success Modal Heading');
-  private readonly proceedToCheckoutButton = this.page.locator('[data-testid="layer-cart-checkout"]').describe('Proceed to Checkout Button');
+  private readonly firstRoomCard = this.page.getByTestId('room-card').first().describe('First Available Room Card');
+  private readonly occupancyButton = this.firstRoomCard.getByTestId('occupancy-button').describe('Occupancy Selector Button');
+  private readonly occupancySubmitButton = this.firstRoomCard.getByTestId('occupancy-submit').describe('Occupancy Done Button');
+  private readonly bookNowButton = this.firstRoomCard.getByTestId('book-now').describe('Book Now Button');
+  private readonly cartModalHeading = this.page.getByTestId('layer-cart-room-added').describe('Cart Success Modal Heading');
+  private readonly proceedToCheckoutButton = this.page.getByTestId('layer-cart-checkout').describe('Proceed to Checkout Button');
 
   constructor(page: Page) {
     super(page);
