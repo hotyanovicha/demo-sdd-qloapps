@@ -46,8 +46,9 @@
 ### 1. Portal: Auth: Successful registration: User is redirected to My Account
 
 ---
+**Status**: Automated
 **Spec**: `auth.spec.ts`
-**Test name**: `should redirect to My Account when a new user registers successfully`
+**Test name**: `Portal: Auth: Successful registration: User is redirected to My Account`
 **Fixture dependencies**: `page`
 **Data requirements**: 
 - Unique email generated dynamically (e.g., `test-${Date.now()}@example.com`).
@@ -70,8 +71,9 @@
 ### 2. Portal: Auth: Registered user login: Dashboard is displayed
 
 ---
+**Status**: Automated
 **Spec**: `auth.spec.ts`
-**Test name**: `should display dashboard when registered user logs in`
+**Test name**: `Portal: Auth: Registered user login: Dashboard is displayed`
 **Fixture dependencies**: `page` (No "auth" fixture, as we test login itself).
 **Data requirements**: 
 - Valid user credentials.
@@ -94,8 +96,9 @@
 ### 3. Portal: Room Search: Valid dates search: Available rooms are listed
 
 ---
+**Status**: Automated
 **Spec**: `room-search.spec.ts`
-**Test name**: `should list available rooms when searching with valid dates`
+**Test name**: `Portal: Room Search: Valid dates search: Available rooms are listed`
 **Fixture dependencies**: `page`
 **Data requirements**: None (relies on default hotel inventory).
 **Setup**: None.
@@ -115,8 +118,9 @@
 ### 4. Add Room to Cart: show success modal when adding a room to cart
 
 ---
+**Status**: Manual
 **Spec**: `room-search.spec.ts`
-**Test name**: `should show success modal when adding a room to cart`
+**Test name**: `Add Room to Cart: show success modal when adding a room to cart`
 **Fixture dependencies**: `searchResults` (Fixture: navigates to Search page with results).
 **Data requirements**: Rooms available.
 **Setup**: `searchResults` fixture logic (UI Search).
@@ -132,8 +136,9 @@
 ### 5. Portal: Room Page: Exceed max adult occupancy: Error is shown
 
 ---
+**Status**: Manual
 **Spec**: `room-search.spec.ts`
-**Test name**: `should show error when exceeding max adult occupancy`
+**Test name**: `Portal: Room Page: Exceed max adult occupancy: Error is shown`
 **Fixture dependencies**: `searchResults`
 **Data requirements**: Room with specific limit (e.g., 2 adults).
 **Setup**: `searchResults` fixture logic (UI Search).
@@ -149,8 +154,9 @@
 ### 6. Portal: Checkout: Cart summary: Correct items are displayed
 
 ---
+**Status**: Manual
 **Spec**: `checkout.spec.ts`
-**Test name**: `should display correct items in cart summary`
+**Test name**: `Portal: Checkout: Cart summary: Correct items are displayed`
 **Fixture dependencies**: `cartWithRoom` (User login -> UI Search -> Add Room -> Proceed from Modal).
 **Data requirements**: User with items in cart.
 **Setup**: `cartWithRoom` fixture ensures user is at summary step via UI.
@@ -166,8 +172,9 @@
 ### 7. Portal: Checkout: Valid address: User can proceed to payment
 
 ---
+**Status**: Manual
 **Spec**: `checkout.spec.ts`
-**Test name**: `should proceed to payment when address is valid`
+**Test name**: `Portal: Checkout: Valid address: User can proceed to payment`
 **Fixture dependencies**: `cartWithRoom`
 **Data requirements**: User with configured address.
 **Setup**: Navigate through Summary to Address step (Address is created during UI Registration in `cartWithRoom` -> `auth` fixture).
@@ -183,8 +190,9 @@
 ### 8. Portal: Checkout: Terms not accepted: Payment is prevented
 
 ---
+**Status**: Manual
 **Spec**: `checkout.spec.ts`
-**Test name**: `should prevent payment when terms are not accepted`
+**Test name**: `Portal: Checkout: Terms not accepted: Payment is prevented`
 **Fixture dependencies**: `paymentReadyUser` (User at payment step).
 **Data requirements**: None.
 **Setup**: `paymentReadyUser` fixture logic (Full UI checkout flow until Payment).
@@ -201,8 +209,9 @@
 ### 9. Portal: Checkout: Bank Wire payment: Order is completed
 
 ---
+**Status**: Manual
 **Spec**: `checkout.spec.ts`
-**Test name**: `should complete order via Bank Wire`
+**Test name**: `Portal: Checkout: Bank Wire payment: Order is completed`
 **Fixture dependencies**: `paymentReadyUser`
 **Data requirements**: None.
 **Setup**: `paymentReadyUser` fixture logic.
@@ -222,8 +231,9 @@
 ### 10. Portal: Bookings: Completed order: Order is displayed in history
 
 ---
+**Status**: Manual
 **Spec**: `order-history.spec.ts`
-**Test name**: `should display completed order in history`
+**Test name**: `Portal: Bookings: Completed order: Order is displayed in history`
 **Fixture dependencies**: `completedOrder` (User with 1 past order).
 **Data requirements**: Order Reference from setup.
 **Setup**: `completedOrder` runs full UI checkout flow and captures Reference.
@@ -240,8 +250,9 @@
 ### 11. Admin: Auth: Successful login: Dashboard is displayed
 
 ---
+**Status**: Manual
 **Spec**: `admin-auth.spec.ts`
-**Test name**: `should display dashboard upon successful admin login`
+**Test name**: `Admin: Auth: Successful login: Dashboard is displayed`
 **Fixture dependencies**: `page`
 **Data requirements**: Valid Admin credentials (env vars).
 **Setup**: None.
@@ -259,8 +270,9 @@
 ### 12. Admin: Orders: New order details: Correct details are displayed
 
 ---
+**Status**: Manual
 **Spec**: `admin-orders.spec.ts`
-**Test name**: `should display correct details for a new order`
+**Test name**: `Admin: Orders: New order details: Correct details are displayed`
 **Fixture dependencies**: `adminAuth`, `completedOrder` (Auxiliary user context).
 **Data requirements**: Order Reference from a fresh user order.
 **Setup**: 
@@ -280,8 +292,9 @@
 ### 13. Admin: Orders: Update status to Payment Accepted: Order status is updated
 
 ---
+**Status**: Manual
 **Spec**: `admin-orders.spec.ts`
-**Test name**: `should update order status to Payment Accepted`
+**Test name**: `Admin: Orders: Update status to Payment Accepted: Order status is updated`
 **Fixture dependencies**: `adminAuth`, `orderAwaitingPayment` (Order in initial state).
 **Data requirements**: Order Reference.
 **Setup**: `orderAwaitingPayment` creates order via UI, then Admin logs in and finds it.
@@ -298,8 +311,9 @@
 ### 14. Admin: Orders: Send message to customer: Message is appended to order history
 
 ---
+**Status**: Manual
 **Spec**: `admin-orders.spec.ts`
-**Test name**: `should append sent message to order history`
+**Test name**: `Admin: Orders: Send message to customer: Message is appended to order history`
 **Fixture dependencies**: `adminAuth`, `orderAwaitingPayment`.
 **Data requirements**: Order Reference.
 **Setup**: Navigate to Order Details (Setup involves UI order creation).
@@ -317,8 +331,9 @@
 ### 15. Portal: My Account: Admin message: Message is displayed to user
 
 ---
+**Status**: Manual
 **Spec**: `order-history.spec.ts`
-**Test name**: `should display message sent by admin`
+**Test name**: `Portal: My Account: Admin message: Message is displayed to user`
 **Fixture dependencies**: `orderWithAdminMessage` (User with order + Admin message sent).
 **Data requirements**: Order with message.
 **Setup**: 
@@ -337,8 +352,9 @@
 ### 16. Admin: Customers: Search by email: Matching customer is found
 
 ---
+**Status**: Manual
 **Spec**: `admin-customers.spec.ts`
-**Test name**: `should find customer by email`
+**Test name**: `Admin: Customers: Search by email: Matching customer is found`
 **Fixture dependencies**: `adminAuth`, `registeredUser` (or static test user).
 **Data requirements**: Known user email.
 **Setup**: Ensure user exists by running **UI Registration Flow**.
@@ -355,8 +371,9 @@
 ### 17. Admin: Orders: Search by reference code: Matching order is found
 
 ---
+**Status**: Manual
 **Spec**: `admin-orders.spec.ts`
-**Test name**: `should find order by reference code`
+**Test name**: `Admin: Orders: Search by reference code: Matching order is found`
 **Fixture dependencies**: `adminAuth`, `completedOrder`.
 **Data requirements**: Order Reference.
 **Setup**: Ensure order exists by running **UI Checkout Flow**.
@@ -373,8 +390,9 @@
 ### 18. Admin: Dashboard: Key statistics widgets: Widgets are displayed
 
 ---
+**Status**: Manual
 **Spec**: `admin-dashboard.spec.ts`
-**Test name**: `should display key statistics widgets`
+**Test name**: `Admin: Dashboard: Key statistics widgets: Widgets are displayed`
 **Fixture dependencies**: `adminAuth`
 **Data requirements**: None.
 **Setup**: Navigate to Dashboard.
