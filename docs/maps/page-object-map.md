@@ -105,18 +105,29 @@
 
 ### SearchResultsPage (`src/ui/pages/search-results.page.ts`)
 **URL:** `/en/{hotel-slug}?date_from=...&date_to=...`
-**Purpose:** Hotel search results listing available rooms
+**Purpose:** Hotel search results listing available rooms; occupancy selection and Book Now flow
 
 | Method | Parameters | Returns | Description |
 |--------|------------|---------|-------------|
 | `waitForLoad()` | - | Promise\<this\> | Wait for Room Results Container (inherited) |
 | `expectRoomsAvailable()` | - | Promise\<void\> | Assert at least one room card is visible |
 | `expectRoomCategoryPresent(categoryName)` | categoryName: string | Promise\<void\> | Assert a room heading with given category name is visible |
+| `selectOccupancy()` | - | Promise\<void\> | Open occupancy selector on first room card |
+| `submitOccupancy()` | - | Promise\<void\> | Click "Done" to confirm occupancy selection |
+| `bookFirstRoom()` | - | Promise\<void\> | Click "Book Now" on the first available room card |
+| `expectCartSuccessModalVisible()` | - | Promise\<void\> | Assert cart modal is visible with "Room successfully added to your cart" text |
+| `expectProceedToCheckoutVisible()` | - | Promise\<void\> | Assert "Proceed to checkout" button is visible and enabled in the modal |
 
 **Locators:**
 - `uniqueElement`: `#category_data_cont` — Room Results Container
 - `roomCards`: `#center_column .room_cont` — Room Cards
 - `roomHeadings`: `.rm_heading` — Room Name Headings
+- `firstRoomCard`: `[data-testid="room-card"]` (first) — First Available Room Card
+- `occupancyButton`: `[data-testid="occupancy-button"]` (scoped to first card) — Occupancy Selector Button
+- `occupancySubmitButton`: `[data-testid="occupancy-submit"]` (scoped to first card) — Occupancy Done Button
+- `bookNowButton`: `[data-testid="book-now"]` (scoped to first card) — Book Now Button
+- `cartModalHeading`: `[data-testid="layer-cart-room-added"]` — Cart Success Modal Heading (unique: 1)
+- `proceedToCheckoutButton`: `[data-testid="layer-cart-checkout"]` — Proceed to Checkout Button (unique: 1)
 
 ---
 
@@ -160,3 +171,4 @@
 | 2026-02-20 | `SearchResultsPage` | Fixed `uniqueElement` from non-existent `#search_results` to `#category_data_cont`; removed `expectSearchResultsUrl()` (pages tracked by uniqueElement); added `expectRoomCategoryPresent()` with `.rm_heading` |
 | 2026-02-20 | `MyAccountPage` | Removed non-existent `expectSuccessAlert()` and `expectMyAccountUrl()`; fixed dashboard link selectors to `a[title="Bookings"]` and `a[title="Credit slips"]` scoped to `.myaccount-link-list` |
 | 2026-02-20 | `BasePage` | Fixed locators to `#user_info_acc` (dropdown) and `.header_user_info a[title="Log me out"]` (logout); converted to getter properties |
+| 2026-02-23 | `SearchResultsPage` | Added occupancy selector, Done button, Book Now button, cart modal heading and Proceed to Checkout locators/methods for Scenario 4 (Add to Cart) |
