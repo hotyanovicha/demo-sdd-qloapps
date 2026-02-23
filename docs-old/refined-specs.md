@@ -43,7 +43,7 @@
 
 ## Scenarios
 
-### 1. User Registration
+### 1. Portal: Auth: Successful registration: User is redirected to My Account
 
 ---
 **Spec**: `auth.spec.ts`
@@ -67,7 +67,7 @@
 **Risks**: Email uniqueness collision if not handled dynamically.
 ---
 
-### 2. User Login
+### 2. Portal: Auth: Registered user login: Dashboard is displayed
 
 ---
 **Spec**: `auth.spec.ts`
@@ -91,7 +91,7 @@
 **Risks**: Setup is slow; relies on Registration flow working.
 ---
 
-### 3. Room Search
+### 3. Portal: Room Search: Valid dates search: Available rooms are listed
 
 ---
 **Spec**: `room-search.spec.ts`
@@ -112,7 +112,7 @@
 **Risks**: No inventory available for selected dates (flaky). *Mitigation*: Reset inventory before run or mock search results.
 ---
 
-### 4. Add Room to Cart
+### 4. Add Room to Cart: show success modal when adding a room to cart
 
 ---
 **Spec**: `room-search.spec.ts`
@@ -129,7 +129,7 @@
 **Risks**: "Book Now" might be disabled if room is sold out.
 ---
 
-### 5. Occupancy Limits
+### 5. Portal: Room Page: Exceed max adult occupancy: Error is shown
 
 ---
 **Spec**: `room-search.spec.ts`
@@ -146,7 +146,7 @@
 **Risks**: Selector for "+" button might vary; logic might be JS-driven (slow).
 ---
 
-### 6. Cart Summary & Checkout
+### 6. Portal: Checkout: Cart summary: Correct items are displayed
 
 ---
 **Spec**: `checkout.spec.ts`
@@ -163,7 +163,7 @@
 **Risks**: None.
 ---
 
-### 7. Guest Information & Address
+### 7. Portal: Checkout: Valid address: User can proceed to payment
 
 ---
 **Spec**: `checkout.spec.ts`
@@ -180,7 +180,7 @@
 **Risks**: Address might be missing if user creation was partial (unlikely with UI flow).
 ---
 
-### 8. Payment Terms Validation (Negative)
+### 8. Portal: Checkout: Terms not accepted: Payment is prevented
 
 ---
 **Spec**: `checkout.spec.ts`
@@ -198,7 +198,7 @@
 **Risks**: Alert might be native browser alert.
 ---
 
-### 9. Complete Order (Positive)
+### 9. Portal: Checkout: Bank Wire payment: Order is completed
 
 ---
 **Spec**: `checkout.spec.ts`
@@ -219,7 +219,7 @@
 **Risks**: Bank wire module might be disabled in admin.
 ---
 
-### 10. Verify Order History
+### 10. Portal: Bookings: Completed order: Order is displayed in history
 
 ---
 **Spec**: `order-history.spec.ts`
@@ -237,7 +237,7 @@
 **Risks**: Timezone differences for "Date" assertion.
 ---
 
-### 11. Admin Login
+### 11. Admin: Auth: Successful login: Dashboard is displayed
 
 ---
 **Spec**: `admin-auth.spec.ts`
@@ -256,7 +256,7 @@
 **Risks**: Admin URL might be dynamic/tokenized.
 ---
 
-### 12. Admin - Verify Order Details
+### 12. Admin: Orders: New order details: Correct details are displayed
 
 ---
 **Spec**: `admin-orders.spec.ts`
@@ -277,7 +277,7 @@
 **Risks**: Order processing delay (unlikely).
 ---
 
-### 13. Admin - Update Order Status
+### 13. Admin: Orders: Update status to Payment Accepted: Order status is updated
 
 ---
 **Spec**: `admin-orders.spec.ts`
@@ -295,7 +295,7 @@
 **Risks**: Status IDs might vary; selection by text is safer.
 ---
 
-### 14. Admin - Send Message to User
+### 14. Admin: Orders: Send message to customer: Message is appended to order history
 
 ---
 **Spec**: `admin-orders.spec.ts`
@@ -314,7 +314,7 @@
 **Risks**: None.
 ---
 
-### 15. User - Verify Admin Message
+### 15. Portal: My Account: Admin message: Message is displayed to user
 
 ---
 **Spec**: `order-history.spec.ts`
@@ -334,7 +334,7 @@
 **Risks**: None.
 ---
 
-### 16. Admin - Verify Customer
+### 16. Admin: Customers: Search by email: Matching customer is found
 
 ---
 **Spec**: `admin-customers.spec.ts`
@@ -352,7 +352,7 @@
 **Risks**: None.
 ---
 
-### 17. Admin - Filter Orders by Reference
+### 17. Admin: Orders: Search by reference code: Matching order is found
 
 ---
 **Spec**: `admin-orders.spec.ts`
@@ -370,7 +370,7 @@
 **Risks**: None.
 ---
 
-### 18. Admin - Access Stats Dashboard
+### 18. Admin: Dashboard: Key statistics widgets: Widgets are displayed
 
 ---
 **Spec**: `admin-dashboard.spec.ts`
