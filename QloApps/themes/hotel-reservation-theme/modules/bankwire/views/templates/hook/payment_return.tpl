@@ -24,7 +24,7 @@
 *}
 
 {if $status == 'ok'}
-        <p class="alert alert-success">{l s='Your' mod='bankwire'} {if $cart_room_bookings|count > 1}{l s='bookings have' mod='bankwire'}{else}{l s='booking has' mod='bankwire'}{/if} {l s='been created successfully!' mod='bankwire'}</p><br /><br />
+        <p class="alert alert-success" data-testid="booking-success-message">{l s='Your' mod='bankwire'} {if $cart_room_bookings|count > 1}{l s='bookings have' mod='bankwire'}{else}{l s='booking has' mod='bankwire'}{/if} {l s='been created successfully!' mod='bankwire'}</p><br /><br />
 		{l s='Please send us a bank wire with:' mod='bankwire'}
 		<br />- {l s='Amount' mod='bankwire'} <span class="price"><strong>{$total_to_pay}</strong></span>
 		<br />- {l s='Name of account owner:' mod='bankwire'}  <strong>{if $bankwireOwner}{$bankwireOwner}{else}___________{/if}</strong>
@@ -39,7 +39,7 @@
 		<br />
 	</p>
 {else}
-	<p class="warning">
+	<p class="warning" data-testid="payment-error-message">
 		{l s='We noticed a problem with your order. If you think this is an error, feel free to contact our' mod='bankwire'}
 		<a href="{$link->getPageLink('contact', true)|escape:'html'}">{l s='expert customer support team' mod='bankwire'}</a>.
 	</p>

@@ -90,7 +90,7 @@
 															<div class="col-xs-9 col-sm-10">
 																<div class="row">
 																	<div class="col-xs-12">
-																		<p class="product-name">
+																		<p class="product-name" data-testid="confirmation-room-name">
 																			<a href="{$link->getProductLink($data_v['id_product'])}">
 																				{$data_v['name']}
 																			</a>
@@ -377,7 +377,7 @@
 										<div class="card-body">
 											<div class="row">
 												<label class="col-xs-6 title">{l s='Payment Method'}</label>
-												<div class="col-xs-6 text-right value payment-method">
+												<div class="col-xs-6 text-right value payment-method" data-testid="payment-method">
 													{* {if $invoice && $invoiceAllowed}
 														<span class="icon-pdf"></span>
 														<a target="_blank" href="{$link->getPageLink('pdf-invoice', true)}?id_order={$order->id|intval}{if $is_guest}&amp;secure_key={$order->secure_key|escape:'html':'UTF-8'}{/if}" title="{l s='Click here to download invoice.'}">
@@ -391,7 +391,7 @@
 											<br>
 											<div class="row">
 												<label class="col-xs-6 title">{l s='Status'}</label>
-												<div class="col-xs-6 text-right value status">
+												<div class="col-xs-6 text-right value status" data-testid="order-status">
 													{if isset($order_history[0]) && $order_history[0]}
 														<span{if isset($order_history[0].color) && $order_history[0].color} style="background-color:{$order_history[0].color|escape:'html':'UTF-8'}30; border: 1px solid {$order_history[0].color|escape:'html':'UTF-8'};" {/if} class="label">
 															{if $order_history[0].id_order_state|in_array:$overbooking_order_states}

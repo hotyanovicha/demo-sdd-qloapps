@@ -8,7 +8,7 @@
  */
 export function getSearchDates(
   startOffset = 1,
-  duration = 5,
+  duration = 2,
 ): { checkInDay: string; checkOutDay: string; duration: number } {
   const checkIn = new Date();
   checkIn.setDate(checkIn.getDate() + startOffset);

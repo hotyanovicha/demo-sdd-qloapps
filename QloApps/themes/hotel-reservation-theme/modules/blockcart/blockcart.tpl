@@ -195,7 +195,7 @@
 						<div class="layer_cart_product col-xs-12 col-md-6">
 							<span class="cross" title="{l s='Close window' mod='blockcart'}"></span>
 							{block name='blockcart_layer_cart_left_heading'}
-								<h2 class="layer_cart_room_txt">
+								<h2 class="layer_cart_room_txt" data-testid="layer-cart-room-added">
 									<i class="icon-check"></i>{l s='Room successfully added to your cart' mod='blockcart'}
 								</h2>
 								<h2 class="layer_cart_product_txt">
@@ -378,7 +378,7 @@
 												<i class="icon-chevron-left left"></i>{l s='Continue browsing' mod='blockcart'}
 											</span>
 										</span>
-										<a class="btn btn-default button button-medium"	href="{$link->getPageLink("$order_process", true)|escape:"html":"UTF-8"}" title="{l s='Proceed to checkout' mod='blockcart'}" rel="nofollow">
+										<a class="btn btn-default button button-medium" data-testid="layer-cart-checkout"	href="{$link->getPageLink("$order_process", true)|escape:"html":"UTF-8"}" title="{l s='Proceed to checkout' mod='blockcart'}" rel="nofollow">
 											<span>
 												{l s='Proceed to checkout' mod='blockcart'}<i class="icon-chevron-right right"></i>
 											</span>

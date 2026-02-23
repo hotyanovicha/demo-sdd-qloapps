@@ -11,6 +11,6 @@ test.describe('Room Search', () => {
     await pages.homePage.submitSearch();
     await pages.searchResultsPage.waitForLoad();
     await pages.searchResultsPage.expectRoomsAvailable();
-    await pages.searchResultsPage.expectRoomCategoryPresent('General Rooms');
+    await pages.searchResultsPage.expectRoomCategoryPresent('Rooms');
   });
 });

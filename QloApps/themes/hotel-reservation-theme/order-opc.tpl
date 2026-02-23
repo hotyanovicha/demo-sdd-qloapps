@@ -61,7 +61,7 @@
 														<div class="card">
 															<div class="card-header" id="shopping-cart-summary-head">
 																{block name='order_opc_rooms_summary_heading'}
-																	<h5 class="accordion-header" data-toggle="collapse" data-target="#collapse-shopping-cart" aria-expanded="true" aria-controls="collapse-shopping-cart">
+																	<h5 class="accordion-header" data-toggle="collapse" data-target="#collapse-shopping-cart" aria-expanded="true" aria-controls="collapse-shopping-cart" data-testid="shopping-cart-header">
 																		<span>{l s='Rooms & Price Summary'}</span>
 																		<i class="icon-angle-left pull-right accordion-left-arrow {if $step->step_is_current}hidden{/if}"></i>
 																	</h5>
@@ -184,7 +184,7 @@
 																						<hr>
 																						<div class="row">
 																							<div class="col-sm-12 proceed_btn_block">
-																								<a class="btn btn-default button button-medium pull-right submit-guest-details" href="{$link->getPageLink('order-opc', null, null, ['proceed_to_payment' => 1])}" title="Proceed to Payment" rel="nofollow">
+																								<a class="btn btn-default button button-medium pull-right submit-guest-details" href="{$link->getPageLink('order-opc', null, null, ['proceed_to_payment' => 1])}" title="Proceed to Payment" rel="nofollow" data-testid="proceed-to-payment">
 																									<span>
 																										{l s='Proceed'}
 																									</span>
