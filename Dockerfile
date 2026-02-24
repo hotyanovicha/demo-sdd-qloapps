@@ -29,6 +29,9 @@ RUN chown -R www-data:www-data /var/www/html \
     && find /var/www/html -type d -exec chmod 755 {} \; \
     && find /var/www/html -type f -exec chmod 644 {} \;
 
+# Clear Smarty template cache to ensure data-testid attributes are rendered
+RUN rm -rf /var/www/html/cache/smarty/compile/* /var/www/html/cache/smarty/cache/*
+
 # Fix img/.htaccess: replace blanket "Require all denied" (Apache 2.4) with
 # "Options -Indexes" so Apache can traverse img/p/N/ subdirectories for URL
 # rewriting while still preventing directory listing and PHP execution.
