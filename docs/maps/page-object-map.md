@@ -117,6 +117,7 @@
 | `bookFirstRoom()` | - | Promise\<void\> | Click "Book Now" on the first available room card |
 | `expectCartSuccessModalVisible()` | - | Promise\<void\> | Assert cart modal is visible with "Room successfully added to your cart" text |
 | `expectProceedToCheckoutVisible()` | - | Promise\<void\> | Assert "Proceed to checkout" button is visible and enabled in the modal |
+| `clickProceedToCheckout()` | - | Promise\<void\> | Click the Proceed to Checkout button in the cart success modal |
 
 **Locators:**
 - `uniqueElement`: `#category_data_cont` — Room Results Container
@@ -128,6 +129,66 @@
 - `bookNowButton`: `[data-testid="book-now"]` (scoped to first card) — Book Now Button
 - `cartModalHeading`: `[data-testid="layer-cart-room-added"]` — Cart Success Modal Heading (unique: 1)
 - `proceedToCheckoutButton`: `[data-testid="layer-cart-checkout"]` — Proceed to Checkout Button (unique: 1)
+
+---
+
+### CheckoutPage (`src/ui/pages/checkout/checkout.page.ts`)
+**URL:** `/en/quick-order`
+**Purpose:** Multi-step checkout page (Rooms & Price Summary → Guest Information → Payment)
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `waitForLoad()` | - | Promise\<this\> | Wait for Rooms & Price Summary header (inherited) |
+| `getRoomName()` | - | Promise\<string\> | Assert visibility and return room name text from cart |
+| `getTotalPrice()` | - | Promise\<string\> | Assert visibility and return total price from cart right panel |
+| `proceedToGuestInfo()` | - | Promise\<void\> | Click Proceed button to open Guest Information step |
+| `proceedToPaymentStep()` | - | Promise\<void\> | Click Proceed button to open Payment Information step |
+| `acceptTermsOfService()` | - | Promise\<void\> | Check the Terms of Service checkbox |
+| `selectBankWirePayment()` | - | Promise\<void\> | Click the Pay by Bank Wire link |
+
+**Locators:**
+- `uniqueElement`: `[data-testid="shopping-cart-header"]` — Rooms & Price Summary Header (unique: 1)
+- `cartRoomName`: `[data-testid="cart-room-name"]` — Room Name in Cart (unique: 1)
+- `cartTotalAmount`: `[data-testid="cart-final-total"] .cart_total_values` — Cart Total Amount (unique: 1)
+- `proceedToGuestInfoButton`: `[data-testid="proceed-to-checkout"]` — Proceed to Guest Info Button (unique: 1)
+- `proceedToPaymentButton`: `[data-testid="proceed-to-payment"]` — Proceed to Payment Button (unique: 1)
+- `termsOfServiceCheckbox`: `input#cgv` — Terms of Service Checkbox (unique: 1)
+- `bankWirePaymentLink`: `[data-testid="bankwire-payment"]` — Pay by Bank Wire Link (unique: 1, visible after ToS checked)
+
+---
+
+### BankWireConfirmPage (`src/ui/pages/checkout/bank-wire-confirm.page.ts`)
+**URL:** `/en/module/bankwire/payment`
+**Purpose:** Bank wire order confirmation summary with "I confirm my order" button
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `waitForLoad()` | - | Promise\<this\> | Wait for Bank-wire Payment heading (inherited) |
+| `confirmOrder()` | - | Promise\<void\> | Click the I confirm my order button |
+
+**Locators:**
+- `uniqueElement`: `role=heading[name=/bank-wire payment/i][level=3]` — Bank Wire Payment Heading
+- `confirmOrderButton`: `role=button[name=/confirm my order/i]` — Confirm Order Button
+
+---
+
+### OrderConfirmationPage (`src/ui/pages/order-confirmation.page.ts`)
+**URL:** `/en/order-confirmation?...`
+**Purpose:** Order confirmation page showing booking success, room details, payment status
+
+| Method | Parameters | Returns | Description |
+|--------|------------|---------|-------------|
+| `waitForLoad()` | - | Promise\<this\> | Wait for booking success message (inherited) |
+| `expectSuccessMessageVisible()` | - | Promise\<void\> | Assert success message is visible with correct text |
+| `expectRoomName(expectedName)` | expectedName: string | Promise\<void\> | Assert confirmation room name contains expected value |
+| `expectTotalPrice(expectedTotal)` | expectedTotal: string | Promise\<void\> | Assert Final Booking Total row contains expected price |
+| `expectOrderStatus()` | - | Promise\<void\> | Assert order status shows "Awaiting payment" |
+
+**Locators:**
+- `uniqueElement`: `[data-testid="booking-success-message"]` — Booking Success Message (unique: 1)
+- `confirmationRoomName`: `[data-testid="confirmation-room-name"]` — Confirmation Room Name (unique: 1)
+- `orderStatus`: `[data-testid="order-status"]` — Order Status (unique: 1)
+- `confirmationTotalAmount`: `table.table-summary tr` filtered by `Final Booking Total` → last `td` — Final Booking Total Amount
 
 ---
 
@@ -172,3 +233,7 @@
 | 2026-02-20 | `MyAccountPage` | Removed non-existent `expectSuccessAlert()` and `expectMyAccountUrl()`; fixed dashboard link selectors to `a[title="Bookings"]` and `a[title="Credit slips"]` scoped to `.myaccount-link-list` |
 | 2026-02-20 | `BasePage` | Fixed locators to `#user_info_acc` (dropdown) and `.header_user_info a[title="Log me out"]` (logout); converted to getter properties |
 | 2026-02-23 | `SearchResultsPage` | Added occupancy selector, Done button, Book Now button, cart modal heading and Proceed to Checkout locators/methods for Scenario 4 (Add to Cart) |
+| 2026-02-24 | `SearchResultsPage` | Added `clickProceedToCheckout()` method for Scenario 9 |
+| 2026-02-24 | `CheckoutPage` | New PO for multi-step checkout at `/en/quick-order` — Scenario 9 |
+| 2026-02-24 | `BankWireConfirmPage` | New PO for bank wire payment confirmation at `/en/module/bankwire/payment` — Scenario 9 |
+| 2026-02-24 | `OrderConfirmationPage` | New PO for order confirmation at `/en/order-confirmation` — Scenario 9 |

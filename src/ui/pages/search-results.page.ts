@@ -55,4 +55,9 @@ export class SearchResultsPage extends BasePage {
     await expect(this.proceedToCheckoutButton).toBeVisible();
     await expect(this.proceedToCheckoutButton).toBeEnabled();
   }
+
+  @step('Click Proceed to Checkout button')
+  async clickProceedToCheckout(): Promise<void> {
+    await this.proceedToCheckoutButton.click();
+  }
 }
