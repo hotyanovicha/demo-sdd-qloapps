@@ -126,7 +126,7 @@
 
 ### 9. Portal: Checkout: Bank Wire payment: Order is completed
 ---
-**Status**: Manual
+**Status**: Automated
 **Preconditions**:
 - User has a room in the cart and is on the "Rooms & Price Summary" page.
 **Actions**:

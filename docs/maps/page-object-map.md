@@ -192,6 +192,26 @@
 
 ---
 
+## Fixtures (`src/ui/fixtures/index.ts`)
+
+### `pages`
+**Depends on:** Playwright `page` (single page, no context management)
+**Yields:** `PageManager`
+**Purpose:** Lightweight fixture for unauthenticated tests.
+
+### `authPages`
+**Depends on:** Playwright `browser`
+**Yields:** `{ authPage: PageManager; user: RegistrationData }`
+**Purpose:** Registers a fresh user and leaves browser on My Account page. Manages its own `BrowserContext` (with video recording); closes it after the test.
+
+### `checkoutSummaryPage`
+**Depends on:** `authPages`
+**Yields:** `{ authPage: PageManager; user: RegistrationData; roomName: string; totalPrice: string }`
+**Purpose:** Navigates from My Account → Home → Search (The Hotel Prime) → Occupancy → Book first room → Checkout summary. Yields the page manager already on the "Rooms & Price Summary" step, with `roomName` and `totalPrice` pre-captured. Context lifecycle is owned by `authPages`.
+**Ideal for:** Scenarios #6 (Cart summary validation), #7 (Hotel details), #8 (ToS validation), #9 (Bank Wire payment flow).
+
+---
+
 ## BasePage (`src/ui/pages/base.page.ts`)
 **Purpose:** Abstract base for all Page Objects — provides shared navigation and sign-out utilities
 
@@ -237,3 +257,4 @@
 | 2026-02-24 | `CheckoutPage` | New PO for multi-step checkout at `/en/quick-order` — Scenario 9 |
 | 2026-02-24 | `BankWireConfirmPage` | New PO for bank wire payment confirmation at `/en/module/bankwire/payment` — Scenario 9 |
 | 2026-02-24 | `OrderConfirmationPage` | New PO for order confirmation at `/en/order-confirmation` — Scenario 9 |
+| 2026-02-24 | Fixtures | Added `checkoutSummaryPage` fixture composing from `authPages`; refactored Scenario 9 spec to use it |

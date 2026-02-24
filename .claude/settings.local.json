@@ -22,7 +22,9 @@
       "Skill(playwright-cli)",
       "Skill(playwright-cli:*)",
       "Bash(npx playwright-cli:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker exec:*)"
     ]
   }
 }
