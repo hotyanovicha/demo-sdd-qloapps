@@ -105,6 +105,12 @@ stages:
         APP_IMAGE: ghcr.io/$(imageRepository):$(IMAGE_TAG)
 
     - script: |
+        echo "Clearing Smarty template cache..."
+        docker exec qloapps_build_app sh -c "rm -rf /var/www/html/cache/smarty/compile/* /var/www/html/cache/smarty/cache/*"
+        echo "Smarty cache cleared successfully"
+      displayName: 'Clear Smarty Template Cache'
+
+    - script: |
         npm install -g pnpm
         pnpm config set store-dir $(Agent.WorkFolder)/_pnpm_store
         pnpm install --frozen-lockfile

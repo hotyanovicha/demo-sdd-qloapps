@@ -24,7 +24,11 @@
       "Bash(npx playwright-cli:*)",
       "Bash(ls:*)",
       "Bash(docker ps:*)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(npx @playwright/mcp@latest --version:*)",
+      "Bash(grep:*)",
+      "Skill(develop-test-mcp)",
+      "Skill(develop-test-mcp:*)"
     ]
   }
 }

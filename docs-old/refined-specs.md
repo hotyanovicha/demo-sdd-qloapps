@@ -54,7 +54,7 @@
 
 ### 4. Portal: Room Search: Add to Cart: Show success modal
 ---
-**Status**: Manual
+**Status**: Automated
 **Preconditions**:
 - User is on the Search Results page with available rooms.
 **Actions**:
