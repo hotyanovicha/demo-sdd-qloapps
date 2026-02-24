@@ -10,7 +10,7 @@
 - **Path Aliases** - TypeScript path mapping for clean imports (`@pages`, `@api`, `@fixtures`, `@utils`, `@data`)
 
 ## Agent-First / Harness Engineering Principles
-This codebase serves as an environment optimized for AI agents. Humans define testing intent and provide guidance, while agents construct the test flows, interact with the application, build Page Objects, and maintain the testing infrastructure using automated feedback locators and skills like CLI.
+This codebase serves as an environment optimized for AI agents. Humans define testing intent and provide guidance, while agents construct the test flows, interact with the application, build Page Objects, and maintain the testing infrastructure using automated feedback locators and MCP browser tools.
 
 ## Framework Components
 - **Page Object Model** - UI abstraction pattern handling interactions and state representation (see `tests/pages/`)

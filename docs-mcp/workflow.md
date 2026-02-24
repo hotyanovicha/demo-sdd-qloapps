@@ -5,7 +5,7 @@
 - Any code snippets are **illustrative only**
 - Create your own implementations based on YOUR application's requirements
 
-This codebase serves as an environment optimized for AI agents following the Harness Engineering paradigm. Humans define testing intent and provide guidance, while agents construct the test flows, interact with the application, build Page Objects, and maintain the testing infrastructure using automated feedback, locators, and skills like `playwright-cli`.
+This codebase serves as an environment optimized for AI agents following the Harness Engineering paradigm. Humans define testing intent and provide guidance, while agents construct the test flows, interact with the application, build Page Objects, and maintain the testing infrastructure using automated feedback, locators, and MCP browser tools.
 
 ---
 
@@ -35,18 +35,20 @@ Do not proceed to Step 1 until all three questions are answered.
    - If the Page Object exists but an interaction or state query method is missing → **extend the existing Page Object**.
 3. **Verify:** Confirm no similar functionality exists before creating new files.
 
-### 2. Exploration (Playwright CLI)
+### 2. Exploration (Playwright MCP)
 
 **Goal:** Interactively discover and verify elements within the live application.
 
 If new locators, state validations, or interactions are needed:
-1. The agent uses the `playwright-cli` skill to open the browser.
-2. The agent manually performs the test case workflow in the live browser via the CLI.
-3. The agent extracts exact, verified locators following this strict priority:
+1. The agent uses `mcp_playwright_browser_navigate` to open the target page.
+2. The agent uses `mcp_playwright_browser_snapshot` to inspect the page structure and identify elements.
+3. The agent uses `mcp_playwright_browser_evaluate` to extract HTML and verify locator uniqueness.
+4. The agent extracts exact, verified locators following this strict priority:
    - **1st:** `getByTestId()` (if `data-testid` is available)
    - **2nd:** Unique `id` or other highly specific attributes
    - **3rd:** Semantic locators (`getByRole`, `getByLabel`, `getByText`, etc.)
-4. The agent creates snapshots of the DOM as necessary to ensure accuracy.
+
+See [patterns/locators.md](patterns/locators.md) for the full 6-step mandatory process.
 
 ### 3. Development
 
