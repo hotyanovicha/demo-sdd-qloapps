@@ -102,19 +102,17 @@ stages:
       env:
         APP_IMAGE: ghcr.io/$(imageRepository):$(IMAGE_TAG)
 
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '20.x'
-      displayName: 'Install Node.js'
-
     - script: |
         npm install -g pnpm
+        pnpm config set store-dir $(Agent.WorkFolder)/_pnpm_store
         pnpm install --frozen-lockfile
       displayName: 'Install dependencies (pnpm)'
 
     - script: |
         npx playwright install --with-deps chromium
       displayName: 'Install Playwright Browsers'
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(Agent.WorkFolder)/_playwright_cache
 
     - task: AzureCLI@2
       displayName: 'Azure Login and Run Playwright'
@@ -142,6 +140,7 @@ stages:
         BASE_URL: $(BASE_URL)
         CI: 'true'
         PLAYWRIGHT_SERVICE_URL: $(PLAYWRIGHT_SERVICE_URL)
+        PLAYWRIGHT_BROWSERS_PATH: $(Agent.WorkFolder)/_playwright_cache
     - task: PublishTestResults@2
       condition: always()
       inputs:
