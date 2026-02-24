@@ -23,6 +23,8 @@ variables:
   # Environment variables for the test
   - name: BASE_URL
     value: 'http://localhost:8080'
+  - name: REPORT_PORTAL_URL
+    value: 'http://192.168.1.52:8082'
 
 pool:
   name: main
@@ -141,6 +143,9 @@ stages:
         CI: 'true'
         PLAYWRIGHT_SERVICE_URL: $(PLAYWRIGHT_SERVICE_URL)
         PLAYWRIGHT_BROWSERS_PATH: $(Agent.WorkFolder)/_playwright_cache
+        RP_API_KEY: $(REPORT_PORTAL_API_KEY)
+        RP_ENDPOINT: "$(REPORT_PORTAL_URL)/api/v1"
+        RP_PROJECT: "DemoProject"
     - task: PublishTestResults@2
       condition: always()
       inputs:

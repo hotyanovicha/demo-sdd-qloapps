@@ -1,3 +1,4 @@
+name: demo-sdd-qloapps
 services:
   app:
     image: ${APP_IMAGE:-qloapps_app}

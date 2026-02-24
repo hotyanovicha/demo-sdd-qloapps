@@ -15,7 +15,18 @@ export default defineConfig(
     reporter: [
       ['html', { open: 'never' }],
       ['junit', { outputFile: 'test-results/results.xml' }],
-      ['@azure/playwright/reporter']
+      ['@azure/playwright/reporter'],
+      ['@reportportal/agent-js-playwright', {
+        apiKey: process.env.RP_API_KEY,      
+        endpoint: process.env.RP_ENDPOINT,   
+        project: process.env.RP_PROJECT,     
+        launch: `QloApps-Regression-${process.env.BUILD_SOURCEBRANCHNAME || 'local'}`,
+        attributes: [
+            { key: 'env', value: 'azure-pipeline' },
+            { key: 'branch', value: process.env.BUILD_SOURCEBRANCHNAME || 'local' }
+        ],
+        description: 'Playwright E2E Test Run from Azure DevOps'
+      }]
     ],
     use: {
       trace: 'on',

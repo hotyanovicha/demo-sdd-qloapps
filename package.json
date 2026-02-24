@@ -22,6 +22,7 @@
     "@faker-js/faker": "^10.1.0",
     "@playwright/cli": "^0.1.1",
     "@playwright/test": "1.58.2",
+    "@reportportal/agent-js-playwright": "^5.4.0",
     "@types/node": "^20.19.27",
     "@typescript-eslint/eslint-plugin": "^8.51.0",
     "@typescript-eslint/parser": "^8.51.0",
