@@ -18,6 +18,24 @@
 
 ---
 
+## Scenario → Spec File + Fixture (use this table first)
+
+| Scenario | Short Title | Spec File | Fixture |
+|----------|------------|-----------|---------|
+| 1 | Successful registration | `tests/ui/auth/auth.spec.ts` | `pages` |
+| 2 | Registered user login | `tests/ui/auth/auth.spec.ts` | `pages` |
+| 3 | Valid dates search | `tests/ui/search/room-search.spec.ts` | `pages` |
+| 4 | Add to Cart | `tests/ui/cart/portal-cart.spec.ts` | `pages` |
+| 5 | Exceed max adult occupancy | `tests/ui/search/room-page.spec.ts` | `pages` |
+| 6 | Cart summary | `tests/ui/checkout/checkout.spec.ts` | `checkoutSummaryPage` |
+| 7 | Valid address (hotel details) | `tests/ui/checkout/checkout.spec.ts` | `checkoutSummaryPage` |
+| 8 | Terms of Service validation | `tests/ui/checkout/checkout.spec.ts` | `checkoutSummaryPage` |
+| 9 | Bank Wire payment | `tests/ui/checkout/checkout.spec.ts` | `checkoutSummaryPage` |
+
+> `checkoutSummaryPage` fixture: registered user → search → book → checkout. Yields `{ authPage, user, roomName, totalPrice }` with page already at Rooms & Price Summary.
+
+---
+
 ## Existing Page Objects
 
 ### HomePage (`src/ui/pages/home.page.ts`)
@@ -118,6 +136,10 @@
 | `expectCartSuccessModalVisible()` | - | Promise\<void\> | Assert cart modal is visible with "Room successfully added to your cart" text |
 | `expectProceedToCheckoutVisible()` | - | Promise\<void\> | Assert "Proceed to checkout" button is visible and enabled in the modal |
 | `clickProceedToCheckout()` | - | Promise\<void\> | Click the Proceed to Checkout button in the cart success modal |
+| `incrementAdults()` | - | Promise\<void\> | Click the adult "+" button in the occupancy selector |
+| `expectAdultOccupancyError()` | - | Promise\<void\> | Assert "Maximum adult occupancy reached" error is shown |
+| `expectAdultCount(expectedCount)` | expectedCount: string | Promise\<void\> | Assert adult count display contains expected count |
+| `expectOccupancyButtonText(expectedText)` | expectedText: string | Promise\<void\> | Assert occupancy button text contains expected value |
 
 **Locators:**
 - `uniqueElement`: `#category_data_cont` — Room Results Container
@@ -129,6 +151,9 @@
 - `bookNowButton`: `[data-testid="book-now"]` (scoped to first card) — Book Now Button
 - `cartModalHeading`: `[data-testid="layer-cart-room-added"]` — Cart Success Modal Heading (unique: 1)
 - `proceedToCheckoutButton`: `[data-testid="layer-cart-checkout"]` — Proceed to Checkout Button (unique: 1)
+- `adultIncrementButton`: `[data-testid="occupancy-quantity-up"]` (scoped to first card) — Adult Increment Button
+- `adultCountDisplay`: `[data-testid="occupancy-adult-count"]` (scoped to first card) — Adult Count Display
+- `occupancyErrorMessage`: `.occupancy-input-errors` (scoped to first card) — Occupancy Error Message (parent stays display:none; use toContainText not toBeVisible)
 
 ---
 
@@ -240,21 +265,3 @@
 
 ### Assertions
 - `expect*` — Playwright assertions (visible, URL, text)
-
----
-
-## Update History
-
-| Date | Page Object | Changes |
-|------|-------------|---------|
-| 2026-02-20 | All | Replaced Wikipedia placeholder content with QloApps page objects |
-| 2026-02-20 | `HomePage` | Rewrote `fillSearchForm`: removed broken typeahead/hidden-select approach; uses Chosen.js trigger and verified datepicker selectors |
-| 2026-02-20 | `SearchResultsPage` | Fixed `uniqueElement` from non-existent `#search_results` to `#category_data_cont`; removed `expectSearchResultsUrl()` (pages tracked by uniqueElement); added `expectRoomCategoryPresent()` with `.rm_heading` |
-| 2026-02-20 | `MyAccountPage` | Removed non-existent `expectSuccessAlert()` and `expectMyAccountUrl()`; fixed dashboard link selectors to `a[title="Bookings"]` and `a[title="Credit slips"]` scoped to `.myaccount-link-list` |
-| 2026-02-20 | `BasePage` | Fixed locators to `#user_info_acc` (dropdown) and `.header_user_info a[title="Log me out"]` (logout); converted to getter properties |
-| 2026-02-23 | `SearchResultsPage` | Added occupancy selector, Done button, Book Now button, cart modal heading and Proceed to Checkout locators/methods for Scenario 4 (Add to Cart) |
-| 2026-02-24 | `SearchResultsPage` | Added `clickProceedToCheckout()` method for Scenario 9 |
-| 2026-02-24 | `CheckoutPage` | New PO for multi-step checkout at `/en/quick-order` — Scenario 9 |
-| 2026-02-24 | `BankWireConfirmPage` | New PO for bank wire payment confirmation at `/en/module/bankwire/payment` — Scenario 9 |
-| 2026-02-24 | `OrderConfirmationPage` | New PO for order confirmation at `/en/order-confirmation` — Scenario 9 |
-| 2026-02-24 | Fixtures | Added `checkoutSummaryPage` fixture composing from `authPages`; refactored Scenario 9 spec to use it |
