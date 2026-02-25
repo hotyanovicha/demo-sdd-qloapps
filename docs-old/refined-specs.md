@@ -307,3 +307,93 @@
 - The system prevents progression to the Payment step.
 - Validation error messages appear for the missing fields.
 ---
+
+### 22. Portal: Checkout: Applying 'Extra Services' to a room adds to cart total
+---
+**Priority**: Major
+**Status**: Manual
+**Preconditions**:
+- User has added a room to the cart and is on the "Rooms & Price Summary" step.
+**Actions**:
+1.  Click the "Extra Services" button for the room in the cart.
+2.  Select an extra service (e.g., "Airport Shuttle") and confirm.
+**Assertions**:
+- The cart total price dynamically increases by the exact cost of the extra service.
+- The breakdown (taxes, fees, room cost, extra services) is updated correctly in the summary block.
+---
+
+### 23. Portal: Checkout: 'Booking for someone else?' updates primary guest details
+---
+**Priority**: Major
+**Status**: Manual
+**Preconditions**:
+- User is logged into an account.
+- User has a room in the cart and has navigated to the "Guest Information" checkout step.
+**Actions**:
+1.  Tick the "Booking for someone else?" checkbox.
+2.  Fill in the newly revealed guest details (First Name, Last Name, Email) with information different from the account holder.
+3.  Proceed to the "Payment Information" step.
+**Assertions**:
+- The order summary now displays the newly provided guest name instead of the logged-in account holder's name for that specific room.
+---
+
+### 24. Portal: Checkout: Out-of-stock items block progression to payment
+---
+**Priority**: Critical
+**Status**: Manual
+**Preconditions**:
+- User has a room in their cart.
+- Behind the scenes (or via another session), the exact same inventory is booked, rendering this user's targeted room category "Out of Stock" or unavailable.
+**Actions**:
+1.  The user attempts to click "Proceed to checkout" from the cart summary step.
+**Assertions**:
+- The system prevents progression.
+- An error message (e.g., "An item in your cart is no longer available") is displayed to the user.
+- The cart state is updated/invalidated to reflect the true inventory.
+---
+
+### 25. Portal: Checkout: Unticking Terms of Service dynamically hides payment options
+---
+**Priority**: Major
+**Status**: Manual
+**Preconditions**:
+- User is on the "Payment Information" checkout step.
+**Actions**:
+1.  Tick the "I agree to the terms of service" checkbox.
+2.  Observe the payment options (e.g., "Pay by bank wire") appear.
+3.  Untick the "I agree to the terms of service" checkbox.
+**Assertions**:
+- The payment options immediately disappear or become visually disabled.
+- The user is prevented from selecting a payment method without re-ticking the agreement.
+---
+
+### 26. Portal: Checkout: Completing checkout with unticked Terms of Service is prevented
+---
+**Priority**: Major
+**Status**: Manual
+**Preconditions**:
+- User is on the "Payment Information" checkout step.
+- The "I agree to the terms of service" checkbox is unticked.
+**Actions**:
+1.  Attempt to interact with any remaining checkout progression buttons or forcibly click the payment area.
+**Assertions**:
+- A validation error message (e.g., "Please accept the Terms of Service") is firmly displayed.
+- The user cannot finalize the booking without ticking the box.
+---
+
+### 27. Portal: Cart: Guest cart contents merge successfully upon Auth login
+---
+**Priority**: Major
+**Status**: Manual
+**Preconditions**:
+- User is browsing as an unauthenticated guest.
+- User has added a room to their cart.
+- User has an existing registered account.
+**Actions**:
+1.  Click the "Sign in" button from the header.
+2.  Log in using the valid credentials of the existing account.
+3.  Observe the header cart summary post-login.
+**Assertions**:
+- The room added during the guest session is still present in the cart.
+- The user's account name is correctly displayed alongside the preserved cart items.
+---
