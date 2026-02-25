@@ -64,7 +64,8 @@ Search for a test with the exact scenario name. If found:
 **Goal:** Verify every new locator against the live DOM.
 
 > Skip this step only if ALL required locators already exist in the codebase.
-> For the QloApps checkout flow → see [`docs-mcp/flows/checkout-flow.md`](../../docs-mcp/flows/checkout-flow.md) for proven MCP steps.
+> For checkout page locators → **check `docs-mcp/flows/checkout-flow.md` "Checkout Page — Known Locators" table first** — locators listed there are pre-verified (count = 1) and do not need re-verification via MCP.
+> For the full navigation flow → see [`docs-mcp/flows/checkout-flow.md`](../../docs-mcp/flows/checkout-flow.md) for proven MCP steps and authentication setup.
 
 ### MCP tools
 
