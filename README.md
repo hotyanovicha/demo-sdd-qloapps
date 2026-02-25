@@ -58,3 +58,4 @@ pnpm lint          # check
 pnpm lint:fix      # auto-fix
 ```
 
+develop scenarios 6-8 from @docs-old/refined-specs.md use /develop-test
