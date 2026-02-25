@@ -15,15 +15,6 @@ allowed-tools: Read, Grep, Glob, Write, Edit, Bash(pnpm:*), Bash(npx playwright:
 
 - **NEVER read `.tpl` Smarty template files** — the rendered DOM is the source of truth. Use MCP `snapshot` / `evaluate` on the live page.
 - **NEVER navigate directly to deep pages via constructed URLs** — always walk the full UI flow from the homepage or login page.
-- **NEVER write to `docs/maps/page-object-map.md`** — the `docs/` folder is deleted. The only map is `docs-mcp/maps/page-object-map.md`.
-
----
-
-## Pre-Analysis Gate
-
-MEMORY.md is auto-injected into your system prompt. If it already contains BASE_URL, grouping strategy, and scenario → fixture mappings → **skip the 3 gate questions entirely** and use those defaults.
-
-Only ask if those defaults are missing from MEMORY.md.
 
 ---
 
@@ -64,7 +55,6 @@ Search for a test with the exact scenario name. If found:
 **Goal:** Verify every new locator against the live DOM.
 
 > Skip this step only if ALL required locators already exist in the codebase.
-> For checkout page locators → **check `docs-mcp/flows/checkout-flow.md` "Checkout Page — Known Locators" table first** — locators listed there are pre-verified (count = 1) and do not need re-verification via MCP.
 > For the full navigation flow → see [`docs-mcp/flows/checkout-flow.md`](../../docs-mcp/flows/checkout-flow.md) for proven MCP steps and authentication setup.
 
 ### MCP tools
@@ -111,7 +101,6 @@ Result `1` → ✅ locator is valid. Result `0` or `2+` → ❌ pick a different
 The test name MUST be a verbatim copy of the scenario heading from `docs-old/refined-specs.md`:
 
 ```typescript
-// heading: ### 6. Portal: Checkout: Cart summary: Correct items and costs displayed
 test('Portal: Checkout: Cart summary: Correct items and costs displayed', async ({ ... }) => {
 ```
 

@@ -125,7 +125,6 @@ The agent is now on `/en/quick-order` with `[data-testid="shopping-cart-header"]
 
 **Left panel — room details:**
 - Room name: `[data-testid="cart-room-name"]` — plain text, e.g. "General Rooms" (nested remove-link icon has no text, so textContent is clean)
-- Hotel address: `.hotel-location` — e.g. "The Hotel Prime, Demo City, Poland, 16-226"
 - Check-in / check-out / occupancy info blocks
 
 **Right panel — cost summary:**
@@ -137,7 +136,6 @@ The agent is now on `/en/quick-order` with `[data-testid="shopping-cart-header"]
 **Checkout accordion steps:**
 1. Rooms & Price Summary → `[data-testid="proceed-to-checkout"]` → Guest Info opens
 2. Guest Information → `[data-testid="proceed-to-payment"]` → Payment opens
-3. Payment Information → `input#cgv` ToS checkbox + `p.warning` error shown **immediately** on load
 
 ---
 
