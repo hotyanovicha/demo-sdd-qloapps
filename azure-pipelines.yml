@@ -131,8 +131,9 @@ stages:
         BROWSERSTACK_USERNAME: $(BROWSERSTACK_USERNAME)
         BROWSERSTACK_ACCESS_KEY: $(BROWSERSTACK_ACCESS_KEY)
         BROWSERSTACK_PROJECT_NAME: 'Demo-Qol'
-        BROWSERSTACK_BUILD_NAME: 'Regression-$(Build.BuildNumber)'
-        BROWSERSTACK_BUILD_TAG: 'regression'
+        BROWSERSTACK_BUILD_NAME: $(BROWSERSTACK_BUILD_NAME)
+        BROWSERSTACK_RELEASE_TAG: 'release $(releaseName)'
+        BROWSERSTACK_REGRESSION_TAG: 'Regression-$(Build.BuildNumber)'
         PLAYWRIGHT_BROWSERS_PATH: $(Agent.WorkFolder)/_playwright_cache
 
     - task: PublishTestResults@2
