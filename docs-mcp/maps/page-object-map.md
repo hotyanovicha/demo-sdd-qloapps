@@ -170,9 +170,6 @@
 | `proceedToPaymentStep()` | - | Promise\<void\> | Click Proceed button to open Payment Information step |
 | `acceptTermsOfService()` | - | Promise\<void\> | Check the Terms of Service checkbox |
 | `selectBankWirePayment()` | - | Promise\<void\> | Click the Pay by Bank Wire link |
-| `expectRoomName(expectedName)` | expectedName: string | Promise\<void\> | Assert cart room name contains expected value |
-| `expectTotalPrice(expectedTotal)` | expectedTotal: string | Promise\<void\> | Assert cart total amount contains expected value |
-| `expectCostBreakdownVisible()` | - | Promise\<void\> | Assert rooms cost, convenience fee, and tax rows are visible |
 
 **Locators:**
 - `uniqueElement`: `[data-testid="shopping-cart-header"]` — Rooms & Price Summary Header (unique: 1)
@@ -182,9 +179,6 @@
 - `proceedToPaymentButton`: `[data-testid="proceed-to-payment"]` — Proceed to Payment Button (unique: 1)
 - `termsOfServiceCheckbox`: `input#cgv` — Terms of Service Checkbox (unique: 1)
 - `bankWirePaymentLink`: `[data-testid="bankwire-payment"]` — Pay by Bank Wire Link (unique: 1, visible after ToS checked)
-- `cartRoomsCostAmount`: `.cart_total_detail_block p:first-child .cart_total_values` — Total Rooms Cost Amount (unique: 1)
-- `cartConvenienceFeeAmount`: `.cart_total_detail_block p:nth-child(2) .cart_total_values` — Convenience Fee Amount (unique: 1)
-- `cartTaxAmount`: `p.cart_total_tax .cart_total_values` — Total Tax Amount (unique: 1)
 
 ---
 
@@ -271,23 +265,3 @@
 
 ### Assertions
 - `expect*` — Playwright assertions (visible, URL, text)
-
----
-
-## Update History
-
-| Date | Page Object | Changes |
-|------|-------------|---------|
-| 2026-02-20 | All | Replaced Wikipedia placeholder content with QloApps page objects |
-| 2026-02-20 | `HomePage` | Rewrote `fillSearchForm`: removed broken typeahead/hidden-select approach; uses Chosen.js trigger and verified datepicker selectors |
-| 2026-02-20 | `SearchResultsPage` | Fixed `uniqueElement` from non-existent `#search_results` to `#category_data_cont`; removed `expectSearchResultsUrl()` (pages tracked by uniqueElement); added `expectRoomCategoryPresent()` with `.rm_heading` |
-| 2026-02-20 | `MyAccountPage` | Removed non-existent `expectSuccessAlert()` and `expectMyAccountUrl()`; fixed dashboard link selectors to `a[title="Bookings"]` and `a[title="Credit slips"]` scoped to `.myaccount-link-list` |
-| 2026-02-20 | `BasePage` | Fixed locators to `#user_info_acc` (dropdown) and `.header_user_info a[title="Log me out"]` (logout); converted to getter properties |
-| 2026-02-23 | `SearchResultsPage` | Added occupancy selector, Done button, Book Now button, cart modal heading and Proceed to Checkout locators/methods for Scenario 4 (Add to Cart) |
-| 2026-02-24 | `SearchResultsPage` | Added `clickProceedToCheckout()` method for Scenario 9 |
-| 2026-02-24 | `CheckoutPage` | New PO for multi-step checkout at `/en/quick-order` — Scenario 9 |
-| 2026-02-24 | `BankWireConfirmPage` | New PO for bank wire payment confirmation at `/en/module/bankwire/payment` — Scenario 9 |
-| 2026-02-24 | `OrderConfirmationPage` | New PO for order confirmation at `/en/order-confirmation` — Scenario 9 |
-| 2026-02-24 | Fixtures | Added `checkoutSummaryPage` fixture composing from `authPages`; refactored Scenario 9 spec to use it |
-| 2026-02-25 | `SearchResultsPage` | Added `adultIncrementButton`, `adultCountDisplay`, `occupancyErrorMessage` locators and `incrementAdults()`, `expectAdultOccupancyError()`, `expectAdultCount()`, `expectOccupancyButtonText()` methods for Scenario 5 |
-| 2026-02-25 | `CheckoutPage` | Added `cartRoomsCostAmount`, `cartConvenienceFeeAmount`, `cartTaxAmount` locators and `expectRoomName()`, `expectTotalPrice()`, `expectCostBreakdownVisible()` methods for Scenario 6 |

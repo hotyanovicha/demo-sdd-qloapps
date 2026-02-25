@@ -80,6 +80,12 @@ mcp_playwright_browser_snapshot()  // inspect the now-open dropdown
 - **Re-snapshot after interactions** (clicks, form fills) to confirm DOM changes
 - **Never assume a locator is correct** — always verify via `mcp_playwright_browser_evaluate`
 
+### Hard Prohibitions
+
+🔴 **NEVER read Smarty `.tpl` template files** to infer element structure. Templates are not the source of truth — the rendered DOM is. Always use MCP browser tools (`snapshot`, `evaluate`) to explore the live page.
+
+🔴 **NEVER navigate directly to deep pages via constructed URLs** (e.g., search results with hardcoded date query params, checkout page without going through the booking flow). Always follow the full UI flow from the natural entry point (homepage or login page). Shortcutting via URL bypasses the real user path and may produce a DOM state that does not match what tests will encounter.
+
 ---
 
 ## Agentic Test Development Workflow
