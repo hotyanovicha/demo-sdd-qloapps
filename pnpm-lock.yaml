@@ -40,8 +40,8 @@ importers:
         specifier: ^8.51.0
         version: 8.56.0(eslint@9.39.2)(typescript@5.9.3)
       browserstack-node-sdk:
-        specifier: ^1.49.10
-        version: 1.49.10
+        specifier: ^1.49.11
+        version: 1.49.11
       dotenv:
         specifier: ^17.2.3
         version: 17.3.1
@@ -590,6 +590,7 @@ packages:
   aws-sdk@2.1693.0:
     resolution: {integrity: sha512-cJmb8xEnVLT+R6fBS5sn/EFJiX7tUnDaPtOPZ1vFbOJtd0fnZn/Ky2XGgsvvoeliWeH7mL3TWSX5zXXGSQV6gQ==}
     engines: {node: '>= 10.0.0'}
+    deprecated: The AWS SDK for JavaScript (v2) has reached end-of-support, and no longer receives updates. Please migrate your code to use AWS SDK for JavaScript (v3). More info https://a.co/cUPnyil
 
   aws-sign2@0.7.0:
     resolution: {integrity: sha512-08kcGqnYf/YmjoRhfxyu+CLxBjUtHLXLXX/vUfx9l2LYzG3c1m61nrpyFUZI6zeS+Li/wWMMidD9KgrqtGq3mA==}
@@ -698,8 +699,8 @@ packages:
   browserstack-local@1.5.10:
     resolution: {integrity: sha512-b9VCPzbcZ9heJIlMsexE/zj3D5Y0l0v2lSalKDmjCvdX//KsUBA+g1evWx6yjkMX1DLdfuEBe8fMn4iK7S1vUA==}
 
-  browserstack-node-sdk@1.49.10:
-    resolution: {integrity: sha512-nKUNJgwJvz8uC4TjnSvW3VnhTBOrA+uqvw1Hya79Ny2Jc/YZ6WtjmGl30IMZ4kZ1GrwTnGykWasUeYGWvAg5jw==}
+  browserstack-node-sdk@1.49.11:
+    resolution: {integrity: sha512-3JZU606dzvmx/JvU8+InrngWo+gClzyCF8I7n4gkRoUk92GfWEu82k0WaJ5qicsFNMEF4HsMjn/LWqyKX1ffNw==}
     hasBin: true
 
   buffer-crc32@0.2.13:
@@ -3577,7 +3578,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  browserstack-node-sdk@1.49.10:
+  browserstack-node-sdk@1.49.11:
     dependencies:
       '@google-cloud/compute': 4.12.0
       '@google-cloud/container': 5.19.0

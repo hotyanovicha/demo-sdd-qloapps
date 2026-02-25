@@ -1,0 +1,308 @@
+# Docker
+# Pull a Docker image, Run app, Run Tests
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger: none
+pr: none
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  - name: dockerRegistryServiceConnection
+    value: 'ghcr-connection' # You might need to adjust this name
+  - name: imageRepository
+    value: 'hotyanovicha/demo-sdd-qloapps' # Adjust based on your GHCR repository name
+  - name: containerRegistry
+    value: 'ghcr.io'
+  - name: dockerfilePath
+    value: '$(Build.SourcesDirectory)/Dockerfile'
+  - name: tag
+    value: '$(Build.BuildId)'
+  # Environment variables for the test
+  - name: BASE_URL
+    value: 'http://localhost:8080'
+  - name: REPORT_PORTAL_URL
+    value: 'http://192.168.1.52:8082'
+
+pool:
+  name: main
+
+stages:
+- stage: Test
+  displayName: Run Playwright Tests
+  jobs:
+  - job: Test
+    displayName: Test
+    steps:
+    - script: |
+        echo "Calculating commit SHA..."
+        SHORT_SHA=$(echo $(Build.SourceVersion) | cut -c1-7)
+        echo "Short SHA: $SHORT_SHA"
+        echo "##vso[task.setvariable variable=SHORT_SHA]$SHORT_SHA"
+      displayName: 'Calculate Short SHA'
+
+    - script: |
+        echo "Logging into GHCR..."
+        echo $(GHCR_PAT) | docker login ghcr.io -u $(GHCR_USERNAME) --password-stdin
+      displayName: 'Login to GHCR'
+      env:
+        GHCR_PAT: $(GHCR_PAT)
+        GHCR_USERNAME: $(GHCR_USERNAME)
+
+    - script: |
+        echo "Pulling Docker image..."
+        IMAGE_TAG=sha-$(SHORT_SHA)
+        echo "Trying to pull image with tag: $IMAGE_TAG"
+        
+        # Add a small wait to allow GitHub Action push to stabilize if needed
+        # and use a retry loop for robustness
+        MAX_RETRIES=3
+        COUNT=0
+        SUCCESS=false
+        
+        while [ $COUNT -lt $MAX_RETRIES ]; do
+          if docker pull ghcr.io/$(imageRepository):$IMAGE_TAG; then
+            echo "Successfully pulled image with tag $IMAGE_TAG"
+            echo "##vso[task.setvariable variable=IMAGE_TAG]$IMAGE_TAG"
+            SUCCESS=true
+            break
+          else
+            echo "Attempt $((COUNT+1)) failed to pull image with tag $IMAGE_TAG. Waiting 10s..."
+            sleep 10
+            COUNT=$((COUNT+1))
+          fi
+        done
+        
+        if [ "$SUCCESS" = false ]; then
+          echo "Failed to pull image with tag $IMAGE_TAG after $MAX_RETRIES attempts, falling back to latest"
+          docker pull ghcr.io/$(imageRepository):latest
+          echo "##vso[task.setvariable variable=IMAGE_TAG]latest"
+        fi
+      displayName: 'Pull Docker Image'
+
+    - script: |
+        echo "Starting application with Docker Compose..."
+        export APP_IMAGE=ghcr.io/$(imageRepository):$(IMAGE_TAG)
+        echo "Using APP_IMAGE: $APP_IMAGE"
+        docker compose up -d
+        
+        echo "Waiting for service to be healthy..."
+        # Wait up to 60 seconds for service to be healthy
+        for i in {1..12}; do
+          if docker compose ps | grep -q "(healthy)"; then
+            echo "Service is healthy!"
+            break
+          fi
+          echo "Waiting for health check... ($((i*5))s)"
+          sleep 5
+        done
+        
+        docker compose ps
+      displayName: 'Start Application'
+      env:
+        APP_IMAGE: ghcr.io/$(imageRepository):$(IMAGE_TAG)
+
+    - script: |
+        echo "Clearing Smarty template cache..."
+        docker exec qloapps_build_app sh -c "rm -rf /var/www/html/cache/smarty/compile/* /var/www/html/cache/smarty/cache/*"
+        echo "Smarty cache cleared successfully"
+      displayName: 'Clear Smarty Template Cache'
+
+    - script: |
+        npm install -g pnpm
+        pnpm config set store-dir $(Agent.WorkFolder)/_pnpm_store
+        pnpm install --frozen-lockfile
+      displayName: 'Install dependencies (pnpm)'
+
+    - script: |
+        npx playwright install --with-deps chromium
+      displayName: 'Install Playwright Browsers'
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(Agent.WorkFolder)/_playwright_cache
+
+    - task: AzureCLI@2
+      displayName: 'Azure Login and Run Playwright'
+      inputs:
+        azureSubscription: 'azure-playwright-connection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Successfully logged into Azure using Managed Identity"
+          npx playwright test -c playwright.service.config.ts 2>&1 | tee test_output.txt
+          TEST_EXIT_CODE=${PIPESTATUS[0]}
+
+          # Extract the MPT portal report URL from test output
+          REPORT_URL=$(grep -oE 'https://(ms\.)?portal\.azure\.com[^ ]*' test_output.txt | head -n 1)
+
+          if [ ! -z "$REPORT_URL" ]; then
+            echo "### 🎭 [Playwright Cloud Report]($REPORT_URL)" > $(System.DefaultWorkingDirectory)/cloud_report_summary.md
+            echo "" >> $(System.DefaultWorkingDirectory)/cloud_report_summary.md
+            echo "Click the link above to view detailed results in the Microsoft Playwright Testing portal." >> $(System.DefaultWorkingDirectory)/cloud_report_summary.md
+            echo "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Playwright Cloud Report;]$(System.DefaultWorkingDirectory)/cloud_report_summary.md"
+          fi
+
+          exit $TEST_EXIT_CODE
+      env:
+        BASE_URL: $(BASE_URL)
+        CI: 'true'
+        PLAYWRIGHT_SERVICE_URL: $(PLAYWRIGHT_SERVICE_URL)
+        PLAYWRIGHT_BROWSERS_PATH: $(Agent.WorkFolder)/_playwright_cache
+        RP_API_KEY: $(REPORT_PORTAL_API_KEY)
+        RP_ENDPOINT: "$(REPORT_PORTAL_URL)/api/v1"
+        RP_PROJECT: "DemoProject"
+    - task: PublishTestResults@2
+      condition: always()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'test-results/results.xml'
+        failTaskOnFailedTests: true
+      displayName: 'Publish Test Results'
+
+    - task: PublishPipelineArtifact@1
+      condition: always()
+      inputs:
+        targetPath: 'playwright-report'
+        artifact: 'playwright-report'
+        publishLocation: 'pipeline'
+      displayName: 'Publish Playwright Report'
+
+    - script: |
+        docker compose down
+      condition: always()
+      displayName: 'Teardown Docker'
+
+  - job: TestBrowserStack
+    displayName: BrowserStack Tests
+    steps:
+    - task: BrowserStackConfig@0
+      displayName: 'BrowserStack Setup'
+      inputs:
+        BrowserStackServiceEndPoint: 'browserstack-connection'
+
+    - script: |
+        echo "Calculating commit SHA..."
+        SHORT_SHA=$(echo $(Build.SourceVersion) | cut -c1-7)
+        echo "Short SHA: $SHORT_SHA"
+        echo "##vso[task.setvariable variable=SHORT_SHA]$SHORT_SHA"
+      displayName: 'Calculate Short SHA'
+
+    - script: |
+        echo "Logging into GHCR..."
+        echo $(GHCR_PAT) | docker login ghcr.io -u $(GHCR_USERNAME) --password-stdin
+      displayName: 'Login to GHCR'
+      env:
+        GHCR_PAT: $(GHCR_PAT)
+        GHCR_USERNAME: $(GHCR_USERNAME)
+
+    - script: |
+        echo "Pulling Docker image..."
+        IMAGE_TAG=sha-$(SHORT_SHA)
+        echo "Trying to pull image with tag: $IMAGE_TAG"
+        
+        MAX_RETRIES=3
+        COUNT=0
+        SUCCESS=false
+        
+        while [ $COUNT -lt $MAX_RETRIES ]; do
+          if docker pull ghcr.io/$(imageRepository):$IMAGE_TAG; then
+            echo "Successfully pulled image with tag $IMAGE_TAG"
+            echo "##vso[task.setvariable variable=IMAGE_TAG]$IMAGE_TAG"
+            SUCCESS=true
+            break
+          else
+            echo "Attempt $((COUNT+1)) failed to pull image with tag $IMAGE_TAG. Waiting 10s..."
+            sleep 10
+            COUNT=$((COUNT+1))
+          fi
+        done
+        
+        if [ "$SUCCESS" = false ]; then
+          echo "Failed to pull image with tag $IMAGE_TAG after $MAX_RETRIES attempts, falling back to latest"
+          docker pull ghcr.io/$(imageRepository):latest
+          echo "##vso[task.setvariable variable=IMAGE_TAG]latest"
+        fi
+      displayName: 'Pull Docker Image'
+
+    - script: |
+        echo "Starting application with Docker Compose..."
+        export APP_IMAGE=ghcr.io/$(imageRepository):$(IMAGE_TAG)
+        echo "Using APP_IMAGE: $APP_IMAGE"
+        docker compose up -d
+        
+        echo "Waiting for service to be healthy..."
+        for i in {1..12}; do
+          if docker compose ps | grep -q "(healthy)"; then
+            echo "Service is healthy!"
+            break
+          fi
+          echo "Waiting for health check... ($((i*5))s)"
+          sleep 5
+        done
+        
+        docker compose ps
+      displayName: 'Start Application'
+      env:
+        APP_IMAGE: ghcr.io/$(imageRepository):$(IMAGE_TAG)
+
+    - script: |
+        echo "Clearing Smarty template cache..."
+        docker exec qloapps_build_app sh -c "rm -rf /var/www/html/cache/smarty/compile/* /var/www/html/cache/smarty/cache/*"
+        echo "Smarty cache cleared successfully"
+      displayName: 'Clear Smarty Template Cache'
+
+    - script: |
+        npm install -g pnpm
+        pnpm config set store-dir $(Agent.WorkFolder)/_pnpm_store
+        pnpm install --frozen-lockfile
+      displayName: 'Install dependencies (pnpm)'
+
+    - script: |
+        npx playwright install --with-deps chromium
+      displayName: 'Install Playwright Browsers'
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: $(Agent.WorkFolder)/_playwright_cache
+
+    - script: |
+        npx browserstack-node-sdk playwright test 2>&1 | tee bs_test_output.txt
+        TEST_EXIT_CODE=${PIPESTATUS[0]}
+        exit $TEST_EXIT_CODE
+      displayName: 'Run Playwright on BrowserStack'
+      env:
+        BASE_URL: $(BASE_URL)
+        CI: 'true'
+        BROWSERSTACK_USERNAME: $(BROWSERSTACK_USERNAME)
+        BROWSERSTACK_ACCESS_KEY: $(BROWSERSTACK_ACCESS_KEY)
+        BROWSERSTACK_PROJECT_NAME: 'Demo-Qol'
+        BROWSERSTACK_BUILD_NAME: 'Azure-$(Build.BuildNumber)'
+        BROWSERSTACK_BUILD_TAG: 'pipeline'
+        PLAYWRIGHT_BROWSERS_PATH: $(Agent.WorkFolder)/_playwright_cache
+
+    - task: BrowserStackResults@1
+      displayName: 'Embed BrowserStack Results'
+      condition: always()
+      inputs:
+        product: 'automate'
+
+    - task: PublishTestResults@2
+      condition: always()
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'test-results/results.xml'
+        testRunTitle: 'BrowserStack Tests'
+        failTaskOnFailedTests: true
+      displayName: 'Publish BrowserStack Test Results'
+
+    - task: PublishPipelineArtifact@1
+      condition: always()
+      inputs:
+        targetPath: 'playwright-report'
+        artifact: 'browserstack-playwright-report'
+        publishLocation: 'pipeline'
+      displayName: 'Publish BrowserStack Playwright Report'
+
+    - script: |
+        docker compose down
+      condition: always()
+      displayName: 'Teardown Docker'
