@@ -15,6 +15,8 @@ pnpm install
 cp .env.example .env   # fill in credentials and BASE_URL
 ```
 
+docker compose down -v && docker compose up --build -d
+
 ## Running Tests
 
 ### Local
@@ -56,13 +58,3 @@ pnpm lint          # check
 pnpm lint:fix      # auto-fix
 ```
 
-## Project Structure
-
-```
-src/ui/pages/        # Page Objects
-src/ui/fixtures/     # Playwright fixtures
-src/ui/test-data/    # Constants and test data
-tests/ui/            # Test specs
-utils/               # Shared utilities
-docs-mcp/            # Agent workflow docs and standards
-```
