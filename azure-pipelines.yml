@@ -57,25 +57,11 @@ stages:
         IMAGE_TAG=sha-$(SHORT_SHA)
         echo "Trying to pull image with tag: $IMAGE_TAG"
         
-        MAX_RETRIES=3
-        COUNT=0
-        SUCCESS=false
-        
-        while [ $COUNT -lt $MAX_RETRIES ]; do
-          if docker pull ghcr.io/$(imageRepository):$IMAGE_TAG; then
-            echo "Successfully pulled image with tag $IMAGE_TAG"
-            echo "##vso[task.setvariable variable=IMAGE_TAG]$IMAGE_TAG"
-            SUCCESS=true
-            break
-          else
-            echo "Attempt $((COUNT+1)) failed to pull image with tag $IMAGE_TAG. Waiting 10s..."
-            sleep 10
-            COUNT=$((COUNT+1))
-          fi
-        done
-        
-        if [ "$SUCCESS" = false ]; then
-          echo "Failed to pull image with tag $IMAGE_TAG after $MAX_RETRIES attempts, falling back to latest"
+        if docker pull ghcr.io/$(imageRepository):$IMAGE_TAG; then
+          echo "Successfully pulled image with tag $IMAGE_TAG"
+          echo "##vso[task.setvariable variable=IMAGE_TAG]$IMAGE_TAG"
+        else
+          echo "Failed to pull image with tag $IMAGE_TAG. Falling back to latest."
           docker pull ghcr.io/$(imageRepository):latest
           echo "##vso[task.setvariable variable=IMAGE_TAG]latest"
         fi
