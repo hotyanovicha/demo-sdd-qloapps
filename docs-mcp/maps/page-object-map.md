@@ -18,6 +18,24 @@
 
 ---
 
+## Scenario → Spec File + Fixture (use this table first)
+
+| Scenario | Short Title | Spec File | Fixture |
+|----------|------------|-----------|---------|
+| 1 | Successful registration | `tests/ui/auth/auth.spec.ts` | `pages` |
+| 2 | Registered user login | `tests/ui/auth/auth.spec.ts` | `pages` |
+| 3 | Valid dates search | `tests/ui/search/room-search.spec.ts` | `pages` |
+| 4 | Add to Cart | `tests/ui/cart/portal-cart.spec.ts` | `pages` |
+| 5 | Exceed max adult occupancy | `tests/ui/search/room-page.spec.ts` | `pages` |
+| 6 | Cart summary | `tests/ui/checkout/checkout.spec.ts` | `checkoutSummaryPage` |
+| 7 | Valid address (hotel details) | `tests/ui/checkout/checkout.spec.ts` | `checkoutSummaryPage` |
+| 8 | Terms of Service validation | `tests/ui/checkout/checkout.spec.ts` | `checkoutSummaryPage` |
+| 9 | Bank Wire payment | `tests/ui/checkout/checkout.spec.ts` | `checkoutSummaryPage` |
+
+> `checkoutSummaryPage` fixture: registered user → search → book → checkout. Yields `{ authPage, user, roomName, totalPrice }` with page already at Rooms & Price Summary.
+
+---
+
 ## Existing Page Objects
 
 ### HomePage (`src/ui/pages/home.page.ts`)

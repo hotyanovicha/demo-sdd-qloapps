@@ -17,9 +17,13 @@ Follow this 4-step workflow precisely. Each step has mandatory actions — do no
 
 **Goal:** Understand the test intent and identify what already exists.
 
-### 1.1 Read the authoritative standards
+### 1.1 Load project context — skip Pre-Analysis Gate if defaults are in MEMORY.md
+
+MEMORY.md is auto-injected into your system prompt. If it contains BASE_URL, grouping strategy, and scenario → fixture mappings, **do not ask Pre-Analysis Gate questions** — use those defaults directly.
+
+Read the quick reference (replaces reading `coding-standards.md` + all pattern docs):
 ```
-Read docs-mcp/coding-standards.md
+Read docs-mcp/agent-quick-ref.md
 ```
 
 ### 1.2 Parse the user's intent
@@ -32,13 +36,7 @@ From the test case or Gherkin scenario, identify:
 ```
 Read docs-mcp/maps/page-object-map.md
 ```
-Then search the codebase:
-```
-Grep "<PageName|MethodName|keyword>" tests/pages/
-Glob "tests/pages/**/*.ts"
-Glob "tests/fixtures/**/*.ts"
-Glob "utils/**/*.ts"
-```
+Check the **Scenario → Spec File + Fixture** table at the top — it tells you exactly which file and fixture to use. Then verify existing Page Objects and methods before writing any code.
 
 **Decision tree:**
 - PO + locator exist → **use them as-is**
@@ -52,13 +50,9 @@ Glob "utils/**/*.ts"
 **Goal:** Interactively discover and verify element locators in the live application.
 
 > Skip this step only if ALL required locators already exist and are verified in the codebase.
+> `agent-quick-ref.md` (already in context from Step 1) contains the locator priority and verification rules — no need to re-read `locators.md` unless investigating an unusual case.
 
-### 2.1 Read the locator rules
-```
-Read docs-mcp/patterns/locators.md
-```
-
-### 2.2 Navigate to the target page
+### 2.1 Navigate to the target page
 ```
 mcp_playwright_browser_navigate({ url: "<BASE_URL><target-path>" })
 ```
@@ -102,23 +96,22 @@ mcp_playwright_browser_evaluate({
 
 **Goal:** Write the Page Object extensions and the test spec.
 
-### 3.1 Read the pattern docs before writing any code
-```
-Read docs-mcp/patterns/page-object.md
-Read docs-mcp/patterns/elements.md
-Read docs-mcp/patterns/test-data-management.md
-```
+### 3.1 Rules are already in context — do not re-read pattern docs
+
+`agent-quick-ref.md` loaded in Step 1 covers all essential rules (locators, PO structure, step decorator, fixtures, path aliases). **Do not re-read `page-object.md`, `elements.md`, or `test-data-management.md`** unless investigating a case not covered by the quick reference.
+
+Use the **Scenario → Spec File + Fixture** table from `page-object-map.md` (already in context) to confirm the correct file and fixture for this scenario.
 
 ### 3.2 Extend or create the Page Object
-Follow all rules from `docs-mcp/patterns/page-object.md`. Key constraints:
-- One PO per unique URL — verify in `docs-mcp/maps/page-object-map.md` first
+Key constraints (from `agent-quick-ref.md`):
+- One PO per unique URL — verify in `page-object-map.md` first
 - All locators must use `.describe('...')`
+- All public methods must use `@step('description')`
 - Do NOT create new fixtures without explicit engineer approval
 
 ### 3.3 Write the spec file
-Follow test structure and fixture rules from `docs-mcp/coding-standards.md`:
 - File naming: kebab-case, `.spec.ts` suffix
-- Test naming: `should [outcome] when [scenario]`
+- Test naming: verbatim copy of scenario heading from `docs-old/refined-specs.md`
 
 ### 3.4 Update the registry (MANDATORY)
 After writing or extending any Page Object:
@@ -171,12 +164,13 @@ The task is complete when:
 
 | Topic | Document |
 |-------|----------|
-| **All coding rules** (authoritative) | [`docs-mcp/coding-standards.md`](../../docs-mcp/coding-standards.md) |
+| **Quick reference** (read this first — replaces pattern docs) | [`docs-mcp/agent-quick-ref.md`](../../docs-mcp/agent-quick-ref.md) |
+| **Existing Page Objects + Scenario→Fixture map** | [`docs-mcp/maps/page-object-map.md`](../../docs-mcp/maps/page-object-map.md) |
+| **All coding rules** (authoritative — read if quick-ref insufficient) | [`docs-mcp/coding-standards.md`](../../docs-mcp/coding-standards.md) |
 | **MCP workflow & tool reference** | [`docs-mcp/workflow.md`](../../docs-mcp/workflow.md) |
-| **Page Object rules** | [`docs-mcp/patterns/page-object.md`](../../docs-mcp/patterns/page-object.md) |
-| **Locator extraction** (6-step process) | [`docs-mcp/patterns/locators.md`](../../docs-mcp/patterns/locators.md) |
-| **Element interactions & BasePage** | [`docs-mcp/patterns/elements.md`](../../docs-mcp/patterns/elements.md) |
-| **Test data management** | [`docs-mcp/patterns/test-data-management.md`](../../docs-mcp/patterns/test-data-management.md) |
+| **Page Object rules** (detail) | [`docs-mcp/patterns/page-object.md`](../../docs-mcp/patterns/page-object.md) |
+| **Locator extraction** (6-step process, detail) | [`docs-mcp/patterns/locators.md`](../../docs-mcp/patterns/locators.md) |
+| **Element interactions & BasePage** (detail) | [`docs-mcp/patterns/elements.md`](../../docs-mcp/patterns/elements.md) |
+| **Test data management** (detail) | [`docs-mcp/patterns/test-data-management.md`](../../docs-mcp/patterns/test-data-management.md) |
 | **Reporting** | [`docs-mcp/reporting.md`](../../docs-mcp/reporting.md) |
-| **Existing Page Objects registry** | [`docs-mcp/maps/page-object-map.md`](../../docs-mcp/maps/page-object-map.md) |
 | **Tech stack & folder structure** | [`docs-mcp/tech-stack.md`](../../docs-mcp/tech-stack.md) |
