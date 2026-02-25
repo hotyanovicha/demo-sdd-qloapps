@@ -118,6 +118,10 @@
 | `expectCartSuccessModalVisible()` | - | Promise\<void\> | Assert cart modal is visible with "Room successfully added to your cart" text |
 | `expectProceedToCheckoutVisible()` | - | Promise\<void\> | Assert "Proceed to checkout" button is visible and enabled in the modal |
 | `clickProceedToCheckout()` | - | Promise\<void\> | Click the Proceed to Checkout button in the cart success modal |
+| `incrementAdults()` | - | Promise\<void\> | Click the adult "+" button in the occupancy selector |
+| `expectAdultOccupancyError()` | - | Promise\<void\> | Assert "Maximum adult occupancy reached" error is shown |
+| `expectAdultCount(expectedCount)` | expectedCount: string | Promise\<void\> | Assert adult count display contains expected count |
+| `expectOccupancyButtonText(expectedText)` | expectedText: string | Promise\<void\> | Assert occupancy button text contains expected value |
 
 **Locators:**
 - `uniqueElement`: `#category_data_cont` — Room Results Container
@@ -129,6 +133,9 @@
 - `bookNowButton`: `[data-testid="book-now"]` (scoped to first card) — Book Now Button
 - `cartModalHeading`: `[data-testid="layer-cart-room-added"]` — Cart Success Modal Heading (unique: 1)
 - `proceedToCheckoutButton`: `[data-testid="layer-cart-checkout"]` — Proceed to Checkout Button (unique: 1)
+- `adultIncrementButton`: `[data-testid="occupancy-quantity-up"]` (scoped to first card) — Adult Increment Button
+- `adultCountDisplay`: `[data-testid="occupancy-adult-count"]` (scoped to first card) — Adult Count Display
+- `occupancyErrorMessage`: `.occupancy-input-errors` (scoped to first card) — Occupancy Error Message (parent stays display:none; use toContainText not toBeVisible)
 
 ---
 
@@ -145,6 +152,9 @@
 | `proceedToPaymentStep()` | - | Promise\<void\> | Click Proceed button to open Payment Information step |
 | `acceptTermsOfService()` | - | Promise\<void\> | Check the Terms of Service checkbox |
 | `selectBankWirePayment()` | - | Promise\<void\> | Click the Pay by Bank Wire link |
+| `expectRoomName(expectedName)` | expectedName: string | Promise\<void\> | Assert cart room name contains expected value |
+| `expectTotalPrice(expectedTotal)` | expectedTotal: string | Promise\<void\> | Assert cart total amount contains expected value |
+| `expectCostBreakdownVisible()` | - | Promise\<void\> | Assert rooms cost, convenience fee, and tax rows are visible |
 
 **Locators:**
 - `uniqueElement`: `[data-testid="shopping-cart-header"]` — Rooms & Price Summary Header (unique: 1)
@@ -154,6 +164,9 @@
 - `proceedToPaymentButton`: `[data-testid="proceed-to-payment"]` — Proceed to Payment Button (unique: 1)
 - `termsOfServiceCheckbox`: `input#cgv` — Terms of Service Checkbox (unique: 1)
 - `bankWirePaymentLink`: `[data-testid="bankwire-payment"]` — Pay by Bank Wire Link (unique: 1, visible after ToS checked)
+- `cartRoomsCostAmount`: `.cart_total_detail_block p:first-child .cart_total_values` — Total Rooms Cost Amount (unique: 1)
+- `cartConvenienceFeeAmount`: `.cart_total_detail_block p:nth-child(2) .cart_total_values` — Convenience Fee Amount (unique: 1)
+- `cartTaxAmount`: `p.cart_total_tax .cart_total_values` — Total Tax Amount (unique: 1)
 
 ---
 
@@ -258,3 +271,5 @@
 | 2026-02-24 | `BankWireConfirmPage` | New PO for bank wire payment confirmation at `/en/module/bankwire/payment` — Scenario 9 |
 | 2026-02-24 | `OrderConfirmationPage` | New PO for order confirmation at `/en/order-confirmation` — Scenario 9 |
 | 2026-02-24 | Fixtures | Added `checkoutSummaryPage` fixture composing from `authPages`; refactored Scenario 9 spec to use it |
+| 2026-02-25 | `SearchResultsPage` | Added `adultIncrementButton`, `adultCountDisplay`, `occupancyErrorMessage` locators and `incrementAdults()`, `expectAdultOccupancyError()`, `expectAdultCount()`, `expectOccupancyButtonText()` methods for Scenario 5 |
+| 2026-02-25 | `CheckoutPage` | Added `cartRoomsCostAmount`, `cartConvenienceFeeAmount`, `cartTaxAmount` locators and `expectRoomName()`, `expectTotalPrice()`, `expectCostBreakdownVisible()` methods for Scenario 6 |

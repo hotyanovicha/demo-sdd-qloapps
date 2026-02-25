@@ -33,7 +33,8 @@
       "mcp__playwright__browser_navigate",
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_evaluate",
-      "Bash(pnpm exec playwright test:*)"
+      "Bash(pnpm exec playwright test:*)",
+      "mcp__playwright__browser_take_screenshot"
     ]
   }
 }

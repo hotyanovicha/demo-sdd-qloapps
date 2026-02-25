@@ -3,6 +3,7 @@ import { BasePage } from './base.page';
 import { step } from '@utils/decorators';
 
 const CART_SUCCESS_MESSAGE = 'Room successfully added to your cart';
+const ADULT_OCCUPANCY_ERROR_MESSAGE = 'Maximum adult occupancy reached';
 
 export class SearchResultsPage extends BasePage {
   protected readonly uniqueElement = this.page.locator('#category_data_cont').describe('Room Results Container');
@@ -12,6 +13,9 @@ export class SearchResultsPage extends BasePage {
   private readonly occupancyButton = this.firstRoomCard.getByTestId('occupancy-button').describe('Occupancy Selector Button');
   private readonly occupancySubmitButton = this.firstRoomCard.getByTestId('occupancy-submit').describe('Occupancy Done Button');
   private readonly bookNowButton = this.firstRoomCard.getByTestId('book-now').describe('Book Now Button');
+  private readonly adultIncrementButton = this.firstRoomCard.getByTestId('occupancy-quantity-up').describe('Adult Increment Button');
+  private readonly adultCountDisplay = this.firstRoomCard.getByTestId('occupancy-adult-count').describe('Adult Count Display');
+  private readonly occupancyErrorMessage = this.firstRoomCard.locator('.occupancy-input-errors').describe('Occupancy Error Message');
   private readonly cartModalHeading = this.page.getByTestId('layer-cart-room-added').describe('Cart Success Modal Heading');
   private readonly proceedToCheckoutButton = this.page.getByTestId('layer-cart-checkout').describe('Proceed to Checkout Button');
 
@@ -59,5 +63,25 @@ export class SearchResultsPage extends BasePage {
   @step('Click Proceed to Checkout button')
   async clickProceedToCheckout(): Promise<void> {
     await this.proceedToCheckoutButton.click();
+  }
+
+  @step('Click adult increment button to increase adult count')
+  async incrementAdults(): Promise<void> {
+    await this.adultIncrementButton.click();
+  }
+
+  @step('Assert maximum adult occupancy error is shown')
+  async expectAdultOccupancyError(): Promise<void> {
+    await expect(this.occupancyErrorMessage).toContainText(ADULT_OCCUPANCY_ERROR_MESSAGE);
+  }
+
+  @step('Assert adult count equals expected value')
+  async expectAdultCount(expectedCount: string): Promise<void> {
+    await expect(this.adultCountDisplay).toContainText(expectedCount);
+  }
+
+  @step('Assert occupancy button text equals expected value')
+  async expectOccupancyButtonText(expectedText: string): Promise<void> {
+    await expect(this.occupancyButton).toContainText(expectedText);
   }
 }
