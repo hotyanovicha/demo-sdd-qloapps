@@ -169,117 +169,141 @@
 - Sidebar menu and administrator name are visible in the header.
 ---
 
-### 12. Admin: Orders: New order details: Correct details are displayed
+### 12. Portal: Auth: Registration with existing email displays error
 ---
 **Status**: Manual
 **Preconditions**:
-- A new room booking has been placed via the Portal.
-- Administrator is logged into the Admin portal.
+- User is on the Homepage.
+- An account with a specific email address already exists.
 **Actions**:
-1.  Navigate to the Orders page.
-2.  Search for the specific order reference.
-3.  Open the order details view.
+1.  Navigate to the Sign In page.
+2.  Initiate account creation with the existing email address.
+3.  Click "Create an account".
 **Assertions**:
-- Customer name matches the portal user.
-- Hotel name and total number of rooms are correct.
-- Total price matches the portal order.
-- Initial payment status is displayed as "No Payment Received".
+- An error message "An account using this email address has already been registered." is displayed.
+- The user is not redirected to the registration form.
 ---
 
----
-
-### 13. Admin: Orders: Update status to Payment Accepted
+### 13. Portal: Auth: Registration with missing mandatory fields is prevented
 ---
 **Status**: Manual
 **Preconditions**:
-- An order with the status "Awaiting payment" exists.
-- Administrator is logged into the Admin portal.
+- User is on the Registration form page.
 **Actions**:
-1.  Navigate to the specific Order Details page.
-2.  Select "Complete payment received" from the status dropdown.
-3.  Update the status.
+1.  Leave mandatory fields (e.g., First Name, Last Name, Password) blank.
+2.  Click the "Register" button.
 **Assertions**:
-- Order status is successfully updated to "Complete payment received".
-- A new entry appears in the Payment section with the payment method details.
+- Form is not submitted.
+- Validation error messages appear next to or above the mandatory fields.
+- User is not redirected to "My Account".
 ---
 
-### 14. Admin: Orders: Send message to customer
+### 14. Portal: Auth: Login with invalid credentials displays error
 ---
 **Status**: Manual
 **Preconditions**:
-- An active order exists.
-- Administrator is logged into the Admin portal.
+- User is on the Sign In page.
 **Actions**:
-1.  Navigate to the Order Details page in the Admin portal.
-2.  Scroll to the Messages section and enter a confirmation message.
-3.  Enable "Display to customer" and send the message.
-4.  Switch to the Portal and navigate to the same booking's details.
+1.  Enter an invalid or unregistered email address and/or an incorrect password.
+2.  Click the "Sign in" button.
 **Assertions**:
-- The message appears in the order thread within the Admin portal.
-- The message is correctly displayed to the user in the Portal's booking details.
+- An error message (e.g., "Authentication failed.") is displayed.
+- User is not logged in.
 ---
 
----
-
-### 15. Admin: Catalog: Manage Room Types: Verify 'Luxury Rooms' details
+### 15. Portal: Auth: 'Forgot Password' flow successfully initiates email recovery
 ---
 **Status**: Manual
 **Preconditions**:
-- Administrator is logged into the Admin portal.
-- "Luxury Rooms" data is populated in the catalog.
+- User is on the Sign In page.
+- A valid registered user account exists.
 **Actions**:
-1.  Navigate to Catalog -> Manage Room Types.
-2.  Search for the room type with the name "Luxury Rooms".
+1.  Click the "Forgot your password?" link.
+2.  Enter the registered email address.
+3.  Click the "Retrieve Password" button.
 **Assertions**:
-- The results table displays the correct details:
-    - Name: "Luxury Rooms"
-    - Hotel: "The Hotel Prime"
-    - Total Rooms: Match expected count (e.g., 5)
-    - Base Price: Match expected value (e.g., 2500,00 zł)
+- A confirmation message "A confirmation email has been sent to your address" is displayed.
+- An email containing password recovery instructions is triggered.
 ---
 
----
-
-
-### 16. Admin: Customers: Search by email: Matching customer is found
+### 16. Portal: Room Search: Search with no availability shows 'No rooms found'
 ---
 **Status**: Manual
 **Preconditions**:
-- A registered customer exists in the system.
-- Administrator is logged into the Admin portal.
+- Hotel inventory is fully booked or unavailable for the selected dates.
 **Actions**:
-1.  Navigate to the Customers section.
-2.  Filter the customer list by the specific email address and search.
-3.  Open the customer's detail view.
+1.  Navigate to the Homepage.
+2.  Select the specific dates with no availability.
+3.  Click "Search Now".
 **Assertions**:
-- The table displays exactly one matching record.
-- The customer's details (Name, Surname, Email) are correctly displayed in the detail view.
+- Search results page is loaded.
+- A message indicating "No rooms available" or similar is displayed.
+- No room cards are listed in the search results.
 ---
 
-
-### 17. Admin: Orders: Search by reference code: Matching order is found
+### 17. Portal: Room Search: Invalid date selection is prevented
 ---
 **Status**: Manual
 **Preconditions**:
-- At least one booking exists in the system.
-- Administrator is logged into the Admin portal.
+- User is on the Homepage.
 **Actions**:
-1.  Navigate to the Orders section.
-2.  Filter the orders by a specific reference code and search.
-3.  Open the order details.
+1.  Open the Check-out date picker.
+2.  Attempt to select a date that is before the selected Check-in date.
 **Assertions**:
-- The table displays exactly one matching record.
-- The order reference displayed in the details view matches the search input.
+- The UI prevents the selection of invalid dates (either dates are disabled or an error prevents search).
+- The Check-out date is automatically adjusted to be after the Check-in date if forced.
 ---
 
-### 18. Admin: Dashboard: Key statistics widgets: Widgets are displayed
+### 18. Portal: Room Search: Filter and sort results update the list correctly
 ---
 **Status**: Manual
 **Preconditions**:
-- Administrator is logged into the Admin portal.
+- User is on the Search Results page with available rooms of different categories and prices.
 **Actions**:
-1.  Wait for the Dashboard to fully load.
+1.  Apply a specific category filter (e.g., "Executive Rooms").
+2.  Change the sort order to "Price: Lowest first".
 **Assertions**:
-- All key statistics widgets are visible (e.g., Arrivals, Departures, New Bookings, Occupancy, Revenue).
-- Occupancy and "Operations Today" sections are properly displayed.
+- The room list updates to only show rooms matching the filter.
+- The rooms are displayed in ascending order of price.
+---
+
+### 19. Portal: Cart: Delete item from cart removes room and updates total
+---
+**Status**: Manual
+**Preconditions**:
+- User has added a room to the cart.
+- The Cart Summary drop-down or page is open.
+**Actions**:
+1.  Click the delete (trash can) icon next to the room in the cart.
+**Assertions**:
+- The room is removed from the cart list.
+- The cart item count decreases.
+- The total price is recalculated correctly.
+---
+
+### 20. Portal: Cart: Add multiple different room types to cart aggregates total correctly
+---
+**Status**: Manual
+**Preconditions**:
+- User is on the Search Results page with multiple room categories available.
+**Actions**:
+1.  Add a "General Room" to the cart.
+2.  Close the success modal and add an "Executive Room" (or another category) to the cart.
+3.  Proceed to checkout.
+**Assertions**:
+- Both rooms are displayed in the Cart Summary.
+- The total cost is the sum of both rooms, including applicable taxes and fees.
+---
+
+### 21. Portal: Checkout: Checkout with incomplete mandatory address details is prevented
+---
+**Status**: Manual
+**Preconditions**:
+- User is authorized and on the checkout Guest Information/Address step.
+**Actions**:
+1.  Leave mandatory fields (e.g., Address, City, Zip Code) blank.
+2.  Click "Proceed to checkout" or "Save".
+**Assertions**:
+- The system prevents progression to the Payment step.
+- Validation error messages appear for the missing fields.
 ---
