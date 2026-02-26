@@ -4,6 +4,8 @@ services:
     image: ${APP_IMAGE:-qloapps_app}
     build: .
     container_name: qloapps_build_app
+    volumes:
+      - ${QLOAPPS_IMG_HOST_PATH}:/var/www/html/img
     ports:
       - "8080:80"
     environment:
