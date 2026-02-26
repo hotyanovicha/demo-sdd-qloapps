@@ -140,6 +140,7 @@
 | `expectAdultOccupancyError()` | - | Promise\<void\> | Assert "Maximum adult occupancy reached" error is shown |
 | `expectAdultCount(expectedCount)` | expectedCount: string | Promise\<void\> | Assert adult count display contains expected count |
 | `expectOccupancyButtonText(expectedText)` | expectedText: string | Promise\<void\> | Assert occupancy button text contains expected value |
+| `expectAmenitiesFilterCriteria(expectedAmenities)` | expectedAmenities: readonly string[] | Promise\<void\> | Assert amenities filter criteria exactly matches expected values from test data |
 
 **Locators:**
 - `uniqueElement`: `#category_data_cont` — Room Results Container
@@ -154,6 +155,8 @@
 - `adultIncrementButton`: `[data-testid="occupancy-quantity-up"]` (scoped to first card) — Adult Increment Button
 - `adultCountDisplay`: `[data-testid="occupancy-adult-count"]` (scoped to first card) — Adult Count Display
 - `occupancyErrorMessage`: `.occupancy-input-errors` (scoped to first card) — Occupancy Error Message (parent stays display:none; use toContainText not toBeVisible)
+- `amenitiesFilterSection`: `#filter_results .layered_filter_cont` filtered by heading `Amenities` — Amenities Filter Section
+- `amenitiesFilterNames`: `.filters_name` (scoped to amenities section) — Amenity Names List
 
 ---
 

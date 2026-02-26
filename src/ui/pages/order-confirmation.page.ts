@@ -1,9 +1,7 @@
 import { expect, Page } from '@playwright/test';
 import { BasePage } from '@pages/base.page';
+import { ORDER_CONFIRMATION } from '@constants/order-confirmation';
 import { step } from '@utils/decorators';
-
-const SUCCESS_MESSAGE = 'Your booking has been created successfully!';
-const AWAITING_PAYMENT_STATUS = 'Awaiting payment';
 
 export class OrderConfirmationPage extends BasePage {
   protected readonly uniqueElement = this.page
@@ -29,7 +27,7 @@ export class OrderConfirmationPage extends BasePage {
   @step('Assert booking success message is visible')
   async expectSuccessMessageVisible(): Promise<void> {
     await expect(this.uniqueElement).toBeVisible();
-    await expect(this.uniqueElement).toContainText(SUCCESS_MESSAGE);
+    await expect(this.uniqueElement).toContainText(ORDER_CONFIRMATION.MESSAGES.BOOKING_SUCCESS);
   }
 
   @step('Assert confirmation room name matches expected value')
@@ -44,6 +42,6 @@ export class OrderConfirmationPage extends BasePage {
 
   @step('Assert order status shows awaiting payment')
   async expectOrderStatus(): Promise<void> {
-    await expect(this.orderStatus).toContainText(AWAITING_PAYMENT_STATUS);
+    await expect(this.orderStatus).toContainText(ORDER_CONFIRMATION.ORDER_STATUSES.AWAITING_PAYMENT);
   }
 }

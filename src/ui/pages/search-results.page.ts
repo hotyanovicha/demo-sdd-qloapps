@@ -1,9 +1,7 @@
 import { expect, Page } from '@playwright/test';
-import { BasePage } from './base.page';
+import { BasePage } from '@pages/base.page';
+import { SEARCH_RESULTS } from '@constants/search-results';
 import { step } from '@utils/decorators';
-
-const CART_SUCCESS_MESSAGE = 'Room successfully added to your cart';
-const ADULT_OCCUPANCY_ERROR_MESSAGE = 'Maximum adult occupancy reached';
 
 export class SearchResultsPage extends BasePage {
   protected readonly uniqueElement = this.page.locator('#category_data_cont').describe('Room Results Container');
@@ -18,6 +16,14 @@ export class SearchResultsPage extends BasePage {
   private readonly occupancyErrorMessage = this.firstRoomCard.locator('.occupancy-input-errors').describe('Occupancy Error Message');
   private readonly cartModalHeading = this.page.getByTestId('layer-cart-room-added').describe('Cart Success Modal Heading');
   private readonly proceedToCheckoutButton = this.page.getByTestId('layer-cart-checkout').describe('Proceed to Checkout Button');
+  private readonly amenitiesFilterSection = this.page
+    .locator('#filter_results .layered_filter_cont', {
+      has: this.page.locator('.lf_headingmain_wrapper > span', {
+        hasText: new RegExp(`^${SEARCH_RESULTS.FILTER_HEADINGS.AMENITIES}$`),
+      }),
+    })
+    .describe('Amenities Filter Section');
+  private readonly amenitiesFilterNames = this.amenitiesFilterSection.locator('.filters_name').describe('Amenities Filter Names');
 
   constructor(page: Page) {
     super(page);
@@ -51,7 +57,7 @@ export class SearchResultsPage extends BasePage {
   @step('Assert cart success modal is visible with booking confirmation message')
   async expectCartSuccessModalVisible(): Promise<void> {
     await expect(this.cartModalHeading).toBeVisible();
-    await expect(this.cartModalHeading).toContainText(CART_SUCCESS_MESSAGE);
+    await expect(this.cartModalHeading).toContainText(SEARCH_RESULTS.MESSAGES.CART_SUCCESS);
   }
 
   @step('Assert Proceed to Checkout button is visible and enabled')
@@ -72,7 +78,7 @@ export class SearchResultsPage extends BasePage {
 
   @step('Assert maximum adult occupancy error is shown')
   async expectAdultOccupancyError(): Promise<void> {
-    await expect(this.occupancyErrorMessage).toContainText(ADULT_OCCUPANCY_ERROR_MESSAGE);
+    await expect(this.occupancyErrorMessage).toContainText(SEARCH_RESULTS.MESSAGES.ADULT_OCCUPANCY_MAX_REACHED);
   }
 
   @step('Assert adult count equals expected value')
@@ -83,5 +89,11 @@ export class SearchResultsPage extends BasePage {
   @step('Assert occupancy button text equals expected value')
   async expectOccupancyButtonText(expectedText: string): Promise<void> {
     await expect(this.occupancyButton).toContainText(expectedText);
+  }
+
+  @step('Assert amenities criteria matches expected test data exactly')
+  async expectAmenitiesFilterCriteria(expectedAmenities: readonly string[]): Promise<void> {
+    const actualAmenities = (await this.amenitiesFilterNames.allInnerTexts()).map((amenity) => amenity.trim());
+    expect(actualAmenities).toEqual([...expectedAmenities]);
   }
 }
