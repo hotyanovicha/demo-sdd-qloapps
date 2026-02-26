@@ -67,7 +67,7 @@
 
 ### 5. Portal: Room Page: Exceed max adult occupancy: Error is shown
 ---
-**Status**: Manual
+**Status**: Automated
 **Preconditions**:
 - User is on the Search Results page.
 - A room with a specific adult occupancy limit (e.g., 2 Adults) is available.

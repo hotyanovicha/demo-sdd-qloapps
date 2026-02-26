@@ -21,6 +21,8 @@ variables:
     value: '$(Build.BuildId)'
   - name: BASE_URL
     value: 'http://localhost:8080'
+  - name: QLOAPPS_IMG_HOST_PATH
+    value: '/Users/hotyanovich/azagent/azure-agent-4.269.0/img'
 
 pool:
   name: main
@@ -70,7 +72,20 @@ stages:
     - script: |
         echo "Starting application with Docker Compose..."
         export APP_IMAGE=ghcr.io/$(imageRepository):$(IMAGE_TAG)
+        export QLOAPPS_IMG_HOST_PATH="$(QLOAPPS_IMG_HOST_PATH)"
         echo "Using APP_IMAGE: $APP_IMAGE"
+        echo "Using QLOAPPS_IMG_HOST_PATH: $QLOAPPS_IMG_HOST_PATH"
+
+        if [ ! -d "$QLOAPPS_IMG_HOST_PATH" ]; then
+          echo "ERROR: QLOAPPS_IMG_HOST_PATH does not exist: $QLOAPPS_IMG_HOST_PATH"
+          exit 1
+        fi
+
+        if ! find "$QLOAPPS_IMG_HOST_PATH" -type f -print -quit | grep -q .; then
+          echo "ERROR: QLOAPPS_IMG_HOST_PATH is empty: $QLOAPPS_IMG_HOST_PATH"
+          exit 1
+        fi
+
         docker compose up -d
         
         echo "Waiting for service to be healthy..."
@@ -87,6 +102,7 @@ stages:
       displayName: 'Start Application'
       env:
         APP_IMAGE: ghcr.io/$(imageRepository):$(IMAGE_TAG)
+        QLOAPPS_IMG_HOST_PATH: $(QLOAPPS_IMG_HOST_PATH)
 
     - script: |
         echo "Clearing Smarty template cache..."
