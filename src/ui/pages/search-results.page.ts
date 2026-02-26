@@ -93,7 +93,6 @@ export class SearchResultsPage extends BasePage {
 
   @step('Assert amenities criteria matches expected test data exactly')
   async expectAmenitiesFilterCriteria(expectedAmenities: readonly string[]): Promise<void> {
-    const actualAmenities = (await this.amenitiesFilterNames.allInnerTexts()).map((amenity) => amenity.trim());
-    expect(actualAmenities).toEqual([...expectedAmenities]);
+    await expect(this.amenitiesFilterNames).toHaveText(expectedAmenities);
   }
 }

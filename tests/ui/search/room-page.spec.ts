@@ -12,7 +12,7 @@ test.describe('Room Page', () => {
     await pages.homePage.fillSearchForm(HOTELS.THE_HOTEL_PRIME, checkInDay, checkOutDay);
     await pages.homePage.submitSearch();
     await pages.searchResultsPage.waitForLoad();
-    await pages.searchResultsPage.expectAmenitiesFilterCriteria(AMENITIES.DEFAULT_FILTERS);
+    await pages.searchResultsPage.expectAmenitiesFilterCriteria(AMENITIES);
   });
 
   test('Portal: Room Page: Exceed max adult occupancy: Error is shown', async ({ pages }) => {
