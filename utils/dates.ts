@@ -7,8 +7,8 @@
  * @returns An object with `checkInDay`, `checkOutDay` as day-of-month strings, and `duration` in nights.
  */
 export function getSearchDates(
-  startOffset = 1,
-  duration = 2,
+  startOffset = 0,
+  duration = 1,
 ): { checkInDay: string; checkOutDay: string; duration: number } {
   const checkIn = new Date();
   checkIn.setDate(checkIn.getDate() + startOffset);
