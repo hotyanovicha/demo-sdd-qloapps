@@ -116,11 +116,9 @@
 - User has rooms in the cart and is on the "Rooms & Price Summary" page.
 **Actions**:
 1.  Click "Proceed" through the checkout steps until reaching the Terms of Service.
-2.  Attempt to proceed without accepting the Terms of Service.
+2.  Assert an error message "Please accept the Terms of Service" appears.
 3.  Accept the Terms of Service by clicking the checkbox.
-**Assertions**:
-- An error message "Please accept the Terms of Service" appears when attempted without acceptance.
-- The error message disappears once the checkbox is selected.
+4.  Assert the error message disappears once the checkbox is selected.
 ---
 
 
