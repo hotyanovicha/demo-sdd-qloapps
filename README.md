@@ -15,7 +15,7 @@ pnpm install
 cp .env.example .env   # fill in credentials and BASE_URL
 ```
 
-docker compose down -v && docker compose up --build -d
+docker compose -f docker-compose-local.yml down -v && docker compose -f docker-compose-local.yml up --build -d
 
 ## Running Tests
 
