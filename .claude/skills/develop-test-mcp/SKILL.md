@@ -11,10 +11,10 @@ allowed-tools: Read, Grep, Glob, Write, Edit, Bash(pnpm:*), Bash(npx playwright:
 
 ---
 
-## 🔴 Hard Prohibitions (always enforced — no exceptions)
+## 🔴 Hard Prohibitions
 
-- **NEVER read `.tpl` Smarty template files** — the rendered DOM is the source of truth. Use MCP `snapshot` / `evaluate` on the live page.
-- **NEVER navigate directly to deep pages via constructed URLs** — always walk the full UI flow from the homepage or login page.
+- **NEVER read `.tpl` Smarty template files** — use MCP `snapshot` / `evaluate` on the live page.
+- **NEVER navigate directly to deep pages via constructed URLs** — walk the full UI flow from the homepage or login page.
 
 ---
 
@@ -22,27 +22,13 @@ allowed-tools: Read, Grep, Glob, Write, Edit, Bash(pnpm:*), Bash(npx playwright:
 
 **Goal:** Understand intent, find what already exists, avoid duplication.
 
-### 1.1 Read the Page Object Map (only mandatory external read)
-
-```
-Read docs-mcp/maps/page-object-map.md
-```
-
-- Use the **Scenario → Spec File + Fixture** table at the top to pick the correct file and fixture.
+Read `docs-mcp/maps/page-object-map.md`:
+- Pick the correct spec file and fixture from the Scenario → Spec File table.
 - Scan existing PO methods and locators — extend, never duplicate.
 
-### 1.2 Parse intent
+Identify from the scenario: pages involved · actions · assertions.
 
-From the scenario, identify: pages involved · actions to perform · assertions to make.
-
-### 1.3 Duplicate Gate
-
-Search for a test with the exact scenario name. If found:
-- Report the file path and test name.
-- Ask: "This scenario appears to be automated in `<path>`. Should I (a) run it as validation, (b) skip it, or (c) treat this as a new/updated scenario?"
-- Do NOT proceed silently.
-
----
+**Duplicate Gate:** Search for a test with the exact scenario name. If found, report the file path and ask the user how to proceed — do NOT continue silently.
 
 > ✅ **Step 1 checkpoint — before moving to Step 2:**
 > I know the spec file, fixture name, and which POs/methods already exist.
@@ -54,8 +40,8 @@ Search for a test with the exact scenario name. If found:
 
 **Goal:** Verify every new locator against the live DOM.
 
-> Skip this step only if ALL required locators already exist in the codebase.
-> For the full navigation flow → see [`docs-mcp/flows/checkout-flow.md`](../../docs-mcp/flows/checkout-flow.md) for proven MCP steps and authentication setup.
+> Skip only if ALL required locators already exist in the codebase.
+> See `docs-mcp/flows/checkout-flow.md` for proven navigation steps and authentication setup.
 
 ### MCP tools
 
@@ -71,20 +57,16 @@ Search for a test with the exact scenario name. If found:
 | `mcp__playwright__browser_wait_for` | Wait for text to appear or disappear |
 | `mcp__playwright__browser_screenshot` | Visual confirmation |
 
-### Mandatory locator verification sequence
-
-Every new locator must pass all four steps before use:
+### Locator verification sequence (mandatory for every new locator)
 
 ```
-1. mcp__playwright__browser_navigate   → open the target page (via full UI flow)
-2. mcp__playwright__browser_snapshot   → identify the element in the accessibility tree
-3. mcp__playwright__browser_evaluate   → document.querySelector('<selector>').outerHTML  (inspect HTML)
-4. mcp__playwright__browser_evaluate   → document.querySelectorAll('<selector>').length   (MUST = 1)
+1. navigate   → open the target page via full UI flow
+2. snapshot   → identify the element in the accessibility tree
+3. evaluate   → document.querySelector('<selector>').outerHTML
+4. evaluate   → document.querySelectorAll('<selector>').length  ← MUST = 1
 ```
 
-Result `1` → ✅ locator is valid. Result `0` or `2+` → ❌ pick a different locator.
-
----
+Count `1` → ✅ valid. Count `0` or `2+` → ❌ pick a different locator.
 
 > ✅ **Step 2 checkpoint — before moving to Step 3:**
 > Every new locator has been verified unique (count = 1) in the live DOM.
@@ -98,11 +80,17 @@ Result `1` → ✅ locator is valid. Result `0` or `2+` → ❌ pick a different
 
 ### Test naming
 
-The test name MUST be a verbatim copy of the scenario heading from `docs-old/refined-specs.md`:
+Verbatim copy of the scenario heading from `docs-old/refined-specs.md`:
 
 ```typescript
-test('Portal: Checkout: Cart summary: Correct items and costs displayed', async ({ ... }) => {
+test('Portal: Section: Scenario title', async ({ fixture }) => {
 ```
+
+### Test body rules
+
+1. **No `expect()` in the test body** — all assertions belong in Page Object methods with `@step()`
+2. **No hardcoded strings or values** — extract all test data to `src/ui/test-data/constants/*.ts`
+3. **No manual user registration** — use provided fixtures; never create a new fixture without engineer approval
 
 ### Locator priority (most → least stable)
 
@@ -113,66 +101,52 @@ test('Portal: Checkout: Cart summary: Correct items and costs displayed', async 
 5. `locator('[name="..."]')` — unique name attribute
 6. `locator('.stable-class')` — scoped class (verify unique = 1 first)
 
-### Page Object rules (8 critical)
+### Page Object rules
 
 1. **`private readonly` fields only** — no `get` getters, no inline locator creation inside methods
 2. **`.describe('Label')`** on every locator — no exceptions
-3. **`@step('Human readable description')`** on every public method
-4. **Check `page-object-map.md` first** — extend existing PO, never create a duplicate
-5. **One PO per URL** — verify in the map before creating a new file
-6. **No unused methods** — if a method is not called in any spec, remove it
-7. **PO-specific string constants** in `UPPER_SNAKE_CASE` before the class declaration
-8. **Dynamic locators** → arrow function class field:
-   `private readonly item = (id: string) => this.page.locator(\`[data-id="${id}"]\`)`
+3. **`@step('...')`** on every public method — no exceptions
+4. **One PO per URL** — check `page-object-map.md` before creating a new file; extend existing, never duplicate
+5. **No unused methods** — remove any method not called in a spec
+6. **PO-specific string constants** in `UPPER_SNAKE_CASE` before the class declaration
+7. **Dynamic locators** → arrow function field: `private readonly item = (id: string) => this.page.locator(\`...\`)`
 
 ### `@step` decorator syntax
 
 ```typescript
 import { step } from '@utils/decorators';
 
-@step('Assert cart shows the expected room name')
-async expectRoomName(expectedName: string): Promise<void> {
-  await expect(this.cartRoomName).toContainText(expectedName);
+@step('Assert heading is visible')
+async expectHeadingVisible(): Promise<void> {
+  await expect(this.heading).toBeVisible();
 }
 ```
 
 ### Fixture usage
 
 ```typescript
-// pages — unauthenticated flows (search, room page, auth)
-test('...', async ({ pages }) => {
-  await pages.homePage.open();
-});
+// pages — unauthenticated flows
+test('...', async ({ pages }) => { await pages.homePage.open(); });
 
-// checkoutSummaryPage — registered user already at Rooms & Price Summary
-// Use for Scenarios 6, 7, 8, 9
+// checkoutSummaryPage — authenticated user already at Rooms & Price Summary
 test('...', async ({ checkoutSummaryPage }) => {
   const { authPage, roomName, totalPrice } = checkoutSummaryPage;
-  await authPage.checkoutPage.someMethod();
 });
 ```
 
-Do NOT register a user manually in the test body. Do NOT create a new fixture without engineer approval.
-
-### Path aliases (always use — never relative imports)
+### Path aliases (never relative imports)
 
 ```typescript
-import { BasePage } from '@pages/base.page';
-import { test }     from '@fixtures/index';
-import { HOTELS }   from '@constants/hotels';
-import { step }     from '@utils/decorators';
+import { BasePage }       from '@pages/base.page';
+import { test }           from '@fixtures/index';
+import { HOTELS }         from '@constants/hotels';
+import { step }           from '@utils/decorators';
 import { getSearchDates } from '@utils/dates';
 ```
 
 ### Registry update (MANDATORY after any PO change)
 
-```
-Edit docs-mcp/maps/page-object-map.md
-```
-
-Add or update: class name, URL, new methods (parameters, return type, description), new locators (selector, description).
-
----
+Edit `docs-mcp/maps/page-object-map.md` — add or update: class, URL, methods (params, return type, description), locators (selector, description).
 
 > ✅ **Step 3 checkpoint — before moving to Step 4:**
 > - Every locator has `.describe()`
@@ -187,36 +161,26 @@ Add or update: class name, URL, new methods (parameters, return type, descriptio
 
 **Goal:** Confirm the test runs correctly and reliably.
 
-### Run the test
-
 ```bash
 BASE_URL=http://localhost:8080 pnpm exec playwright test <path/to/spec.ts> --reporter=html
 ```
 
 Run **twice** — must pass both times with no retries.
 
-### Troubleshoot failures
-
-If a locator fails, re-investigate via MCP (do not guess):
-
-```
-mcp__playwright__browser_navigate  → open the failing page (via full UI flow)
-mcp__playwright__browser_snapshot  → re-read the current DOM
-mcp__playwright__browser_evaluate  → document.querySelectorAll('<selector>').length
-```
-
-Common causes: locator no longer unique · element not yet rendered · dynamic DOM requiring interaction first.
+If a locator fails, re-investigate via MCP (navigate → snapshot → evaluate count). Do not guess.
 
 ---
 
-> ✅ **Done criteria — task is complete when all boxes are checked:**
-> - [ ] Passes on run 1 (no retry)
-> - [ ] Passes on run 2 (no flakiness)
-> - [ ] `docs-mcp/maps/page-object-map.md` updated
-> - [ ] No `any` types · no `waitForTimeout` · no relative imports
-> - [ ] All locators have `.describe()`
-> - [ ] All public methods have `@step()`
-> - [ ] No unused locators or methods
+## ✅ Done Criteria
+
+- [ ] Passes run 1 (no retry) and run 2 (no flakiness)
+- [ ] `docs-mcp/maps/page-object-map.md` updated
+- [ ] No `any` · no `waitForTimeout` · no relative imports
+- [ ] All locators have `.describe()`
+- [ ] All public methods have `@step()`
+- [ ] No unused locators or methods
+- [ ] No `expect()` in test body — assertions are in PO methods
+- [ ] No hardcoded strings in tests — values are in constants
 
 ---
 
@@ -224,30 +188,30 @@ Common causes: locator no longer unique · element not yet rendered · dynamic D
 
 - `any` types
 - `page.waitForTimeout()`
-- Relative imports (`../../../`)
-- `get myLocator()` getter methods in POs
-- Create locators inside method bodies
-- Add methods not called in any spec
-- Create a new PO file if one already exists for that URL
-- Skip `.describe()` on any locator
-- Skip `@step()` on any public method
-- Read `.tpl` Smarty template files
+- Relative imports
+- `get myLocator()` getters in POs
+- Locators created inside method bodies
+- Methods not called in any spec
+- A new PO file when one already exists for that URL
+- Missing `.describe()` on any locator
+- Missing `@step()` on any public method
+- `expect()` in the test body
+- Hardcoded strings or values in tests — use constants
+- Read `.tpl` files
 - Navigate directly to deep pages via constructed URL
 
 ---
 
 ## Documentation Map
 
-Read these only when the rules above are insufficient for the situation.
-
 | Topic | File |
 |-------|------|
-| PO registry + Scenario → Fixture map | [`docs-mcp/maps/page-object-map.md`](../../docs-mcp/maps/page-object-map.md) |
-| MCP checkout navigation playbook | [`docs-mcp/flows/checkout-flow.md`](../../docs-mcp/flows/checkout-flow.md) |
-| Full coding standards | [`docs-mcp/coding-standards.md`](../../docs-mcp/coding-standards.md) |
-| Locator extraction — 6-step detail | [`docs-mcp/patterns/locators.md`](../../docs-mcp/patterns/locators.md) |
-| Page Object rules — full detail | [`docs-mcp/patterns/page-object.md`](../../docs-mcp/patterns/page-object.md) |
-| Element interactions & BasePage | [`docs-mcp/patterns/elements.md`](../../docs-mcp/patterns/elements.md) |
-| Test data management | [`docs-mcp/patterns/test-data-management.md`](../../docs-mcp/patterns/test-data-management.md) |
-| Reporting / troubleshooting | [`docs-mcp/reporting.md`](../../docs-mcp/reporting.md) |
-| Tech stack & folder structure | [`docs-mcp/tech-stack.md`](../../docs-mcp/tech-stack.md) |
+| PO registry + Scenario → Fixture map | `docs-mcp/maps/page-object-map.md` |
+| MCP checkout navigation playbook | `docs-mcp/flows/checkout-flow.md` |
+| Full coding standards | `docs-mcp/coding-standards.md` |
+| Locator extraction — 6-step detail | `docs-mcp/patterns/locators.md` |
+| Page Object rules — full detail | `docs-mcp/patterns/page-object.md` |
+| Element interactions & BasePage | `docs-mcp/patterns/elements.md` |
+| Test data management | `docs-mcp/patterns/test-data-management.md` |
+| Reporting / troubleshooting | `docs-mcp/reporting.md` |
+| Tech stack & folder structure | `docs-mcp/tech-stack.md` |
