@@ -105,11 +105,13 @@ test('Portal: Checkout: Cart summary: Correct items and costs displayed', async 
 1. Use `private readonly` fields only. Do not use `get` getters or inline locator creation inside methods.
 2. Add `.describe('Label')` on every locator.
 3. Add `@step('Human readable description')` on every public method.
-4. Check `page-object-map.md` first. Extend existing PO, do not duplicate.
-5. Keep one PO per URL. Verify in the map before creating a new file.
-6. Remove unused methods.
-7. Keep PO-specific string constants in `UPPER_SNAKE_CASE` before class declaration.
-8. For dynamic locators, use an arrow-function class field:
+4. Keep assertions in Page Objects. Specs should orchestrate flow only and must not call direct `expect(...)` for UI checks.
+5. Name assertion methods in POs as `expect*` and use those methods from specs.
+6. Check `page-object-map.md` first. Extend existing PO, do not duplicate.
+7. Keep one PO per URL. Verify in the map before creating a new file.
+8. Remove unused methods.
+9. Keep PO-specific string constants in `UPPER_SNAKE_CASE` before class declaration.
+10. For dynamic locators, use an arrow-function class field:
 
 ```typescript
 private readonly item = (id: string) => this.page.locator(`[data-id="${id}"]`)
@@ -168,6 +170,7 @@ Add or update class name, URL, new methods (parameters, return type, description
 Step 3 checkpoint before Step 4:
 - Every locator has `.describe()`.
 - Every public method has `@step()`.
+- Specs do not contain direct UI assertions with `expect(...)`; they call PO `expect*` methods.
 - No unused locators or methods.
 - `docs-mcp/maps/page-object-map.md` updated.
 - No `any` types, no relative imports, no `waitForTimeout`.
@@ -216,6 +219,7 @@ Done criteria:
 - Create a new PO file if one already exists for that URL
 - Skip `.describe()` on any locator
 - Skip `@step()` on any public method
+- Put direct UI assertions in spec files instead of PO `expect*` methods
 - Read `.tpl` Smarty template files
 - Navigate directly to deep pages via constructed URL
 
