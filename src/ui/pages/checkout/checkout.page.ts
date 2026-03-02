@@ -13,6 +13,9 @@ export class CheckoutPage extends BasePage {
     .getByTestId('cart-final-total')
     .locator('.cart_total_values')
     .describe('Cart Total Amount');
+  private readonly hotelAddress = this.page
+    .locator('.hotel-location')
+    .describe('Hotel Address in Cart');
   private readonly proceedToGuestInfoButton = this.page
     .getByTestId('proceed-to-checkout')
     .describe('Proceed to Guest Info Button');
@@ -22,6 +25,9 @@ export class CheckoutPage extends BasePage {
   private readonly termsOfServiceCheckbox = this.page
     .locator('input#cgv')
     .describe('Terms of Service Checkbox');
+  private readonly termsOfServiceErrorMessage = this.page
+    .locator('p.warning')
+    .describe('Terms of Service Error Message');
   private readonly bankWirePaymentLink = this.page
     .getByTestId('bankwire-payment')
     .describe('Pay by Bank Wire Link');
@@ -60,5 +66,24 @@ export class CheckoutPage extends BasePage {
   @step('Select Pay by Bank Wire payment method')
   async selectBankWirePayment(): Promise<void> {
     await this.bankWirePaymentLink.click();
+  }
+
+  @step('Get hotel address from cart')
+  async getHotelAddress(): Promise<string> {
+    await expect(this.hotelAddress).toBeVisible();
+    return ((await this.hotelAddress.textContent()) ?? '').trim();
+  }
+
+  @step('Assert Terms of Service error message is visible')
+  async expectTermsOfServiceErrorVisible(): Promise<void> {
+    await expect(this.termsOfServiceErrorMessage).toBeAttached();
+    await expect(this.termsOfServiceErrorMessage).toContainText(
+      'Please accept the Terms of Service.'
+    );
+  }
+
+  @step('Assert Terms of Service error message is not attached')
+  async expectTermsOfServiceErrorNotAttached(): Promise<void> {
+    await expect(this.termsOfServiceErrorMessage).not.toBeAttached();
   }
 }

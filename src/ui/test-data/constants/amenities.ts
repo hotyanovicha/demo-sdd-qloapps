@@ -1,1 +1,1 @@
-export const AMENITIES = ['Wi-Fi', 'News Paper','Power BackUp', 'Refrigerator', 'Restaurant', 'Room Service', 'Gym'] as const
+export const AMENITIES = ['Wi-Fi', 'News Paper','Power BackUp', 'Refrigerator', 'Restaurant', 'Room Service'] as const

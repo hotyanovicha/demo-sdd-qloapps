@@ -26,6 +26,13 @@ To support the Epic of integrating Stripe for modern, frictionless checkout expe
 1. **US2:** As an Administrator, I want a dedicated configuration screen for Stripe within the Payment Modules section, so that I can securely manage my API keys, environment modes, and view transaction identifiers linked to specific orders.
 
 ## 5. Functional Requirements
+### 5.1 Ticket Requirements (Verbatim Alignment)
+1. The Admin portal has a configuration page for "Stripe Gateway" under the Payments tab.
+2. The page includes fields for Publishable Key, Secret Key, and Webhook Secret.
+3. The Admin can toggle between "Test Mode" (Sandbox) and "Live Mode" (Production).
+4. Order details in the Admin portal must display the Stripe Transaction ID for accounting tracking.
+
+### 5.2 Detailed Requirements
 1. **Configuration Page Access:**
    * **Admin Navigation Context:** The Qlo Back Office features a standard navigation menu. The configuration page is accessed through the "Modules and Services" controller.
    * The Admin portal must have a "Stripe Gateway" configuration accessible either under "Modules and Services" -> "Payment" or by searching the Modules list for "Stripe" and clicking the "Configure" button.

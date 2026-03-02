@@ -169,18 +169,23 @@
 | `waitForLoad()` | - | Promise\<this\> | Wait for Rooms & Price Summary header (inherited) |
 | `getRoomName()` | - | Promise\<string\> | Assert visibility and return room name text from cart |
 | `getTotalPrice()` | - | Promise\<string\> | Assert visibility and return total price from cart right panel |
+| `getHotelAddress()` | - | Promise\<string\> | Assert visibility and return hotel address from cart |
 | `proceedToGuestInfo()` | - | Promise\<void\> | Click Proceed button to open Guest Information step |
 | `proceedToPaymentStep()` | - | Promise\<void\> | Click Proceed button to open Payment Information step |
 | `acceptTermsOfService()` | - | Promise\<void\> | Check the Terms of Service checkbox |
+| `expectTermsOfServiceErrorVisible()` | - | Promise\<void\> | Assert ToS error message is visible in DOM |
+| `expectTermsOfServiceErrorNotAttached()` | - | Promise\<void\> | Assert ToS error message is not in DOM (removed after checkbox checked) |
 | `selectBankWirePayment()` | - | Promise\<void\> | Click the Pay by Bank Wire link |
 
 **Locators:**
 - `uniqueElement`: `[data-testid="shopping-cart-header"]` — Rooms & Price Summary Header (unique: 1)
 - `cartRoomName`: `[data-testid="cart-room-name"]` — Room Name in Cart (unique: 1)
 - `cartTotalAmount`: `[data-testid="cart-final-total"] .cart_total_values` — Cart Total Amount (unique: 1)
+- `hotelAddress`: `.hotel-location` — Hotel Address in Cart (unique: 1)
 - `proceedToGuestInfoButton`: `[data-testid="proceed-to-checkout"]` — Proceed to Guest Info Button (unique: 1)
 - `proceedToPaymentButton`: `[data-testid="proceed-to-payment"]` — Proceed to Payment Button (unique: 1)
 - `termsOfServiceCheckbox`: `input#cgv` — Terms of Service Checkbox (unique: 1)
+- `termsOfServiceErrorMessage`: `p.warning` — Terms of Service Error Message (unique: 1, disappears after checkbox checked)
 - `bankWirePaymentLink`: `[data-testid="bankwire-payment"]` — Pay by Bank Wire Link (unique: 1, visible after ToS checked)
 
 ---
