@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop Test MCP"
+  short_description: "Build Playwright tests using MCP workflow"
+  default_prompt: "Develop Playwright tests via MCP with strict locator verification and PO rules."
